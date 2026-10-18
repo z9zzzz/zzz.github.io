@@ -27,7 +27,7 @@ window.onblur = () => {
 }
 
 window.onfocus = () => {
-        document.title = "глубокий | Deep";
+        document.title = "-Y";
 }
 
 const image = document.querySelector('.image');
