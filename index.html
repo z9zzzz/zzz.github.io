@@ -175,10 +175,10 @@
                          <h3 class="name"> </h3>
                          <div class="name-container">
                               <h3 class="bold-name">- Да?</h3>
-                              <a href="https://t.me/nft/SurgeBoard-14057" target="_blank" rel="noopener"
-                                   class="gift-badge">
+                              <a href="#" target="_blank" rel="noopener"
+                                   class="gift-badge" id="gift-badge-link">
                                    <span class="gift-label">
-                                        <span class="gift-label-text">Surge Board #14057</span>
+                                        <span class="gift-label-text" id="gift-label-text"></span>
                                    </span>
                                    <div id="gift-lottie" class="gift-lottie"></div>
                               </a>
@@ -254,7 +254,8 @@
                "Symbol/Champagne.png",
                "Symbol/Doberman.png",
                "Symbol/Diamond.png",
-               "Symbol/MapleLeaf.png"
+               "Symbol/MapleLeaf.png",
+               "Symbol/War.png"
           ];
 
           const randomImage = symbols[Math.floor(Math.random() * symbols.length)];
@@ -276,10 +277,37 @@
      <script src="src/lottie.min.js"></script>
      <script>
           (function () {
-               function playGift() {
+               var selectedGift = null;
+
+               function applyGift(gift) {
+                    selectedGift = gift;
+
+                    var labelEl = document.getElementById("gift-label-text");
+                    if (labelEl) labelEl.textContent = gift.label;
+
+                    var linkEl = document.getElementById("gift-badge-link");
+                    if (linkEl) linkEl.href = gift.link;
+               }
+
+               function loadManifestAndPick() {
+                    fetch("GiftsJson/gifts-manifest.json")
+                         .then(function (res) { return res.json(); })
+                         .then(function (gifts) {
+                              if (!gifts || !gifts.length) return;
+                              var picked = gifts[Math.floor(Math.random() * gifts.length)];
+                              applyGift(picked);
+                              playGift(picked.json);
+                         })
+                         .catch(function (err) {
+                              console.warn("gifts-manifest.json not found, using fallback.", err);
+                              playGift("GiftsJson/SurgeBoard.json");
+                         });
+               }
+
+               function playGift(jsonPath) {
                     var container = document.getElementById("gift-lottie");
                     if (!container || typeof lottie === "undefined") {
-                         setTimeout(playGift, 80);
+                         setTimeout(function () { playGift(jsonPath); }, 80);
                          return;
                     }
                     lottie.loadAnimation({
@@ -287,7 +315,7 @@
                          renderer: "svg",
                          loop: true,
                          autoplay: true,
-                         path: "GiftsJson/SurgeBoard.json"
+                         path: jsonPath
                     });
                }
 
@@ -323,7 +351,7 @@
                }
 
                function init() {
-                    playGift();
+                    loadManifestAndPick();
                     showLabelAfterLoader();
                }
 

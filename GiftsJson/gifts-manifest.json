@@ -1,0 +1,42 @@
+[
+     {
+          "id": 1,
+          "name": "Surge Board",
+          "number": 14057,
+          "label": "Surge Board #14057",
+          "json": "GiftsJson/SurgeBoard.json",
+          "link": "https://t.me/nft/SurgeBoard-14057"
+     },
+     {
+          "id": 2,
+          "name": "Resistance Dog",
+          "number": 1337,
+          "label": "Resistance Dog #1337",
+          "json": "GiftsJson/ResistanceDog.json",
+          "link": "https://t.me/nft/ResistanceDog-1337"
+     },
+     {
+          "id": 3,
+          "name": "Precious Peach",
+          "number": 595,
+          "label": "Precious Peach #595",
+          "json": "GiftsJson/PreciousPeach.json",
+          "link": "https://t.me/nft/PreciousPeach-595"
+     },
+     {
+          "id": 4,
+          "name": "Nail Bracelet",
+          "number": 2051,
+          "label": "Nail Bracelet #2051",
+          "json": "GiftsJson/NailBracelet.json",
+          "link": "https://t.me/nft/NailBracelet-2051"
+     },
+     {
+          "id": 5,
+          "name": "Heroic Helmet",
+          "number": 2847,
+          "label": "Heroic Helmet #2847",
+          "json": "GiftsJson/HeroicHelmet.json",
+          "link": "https://t.me/nft/HeroicHelmet-2847"
+     }
+]

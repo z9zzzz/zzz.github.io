@@ -2,8 +2,8 @@
 Telegram Collectible Gift Scraper
 ----------------------------------
 Fetches a Telegram NFT gift page, downloads its .tgs sticker, converts it
-to .json (Lottie format), organizes the output into folders, and updates
-a target HTML file (gift badge link, label text, and Lottie json path).
+to .json (Lottie format) inside GiftsJson/, and updates gifts-manifest.json.
+No tgs folder, no HTML editing.
 """
 
 from __future__ import annotations
@@ -63,7 +63,6 @@ class TelegramGiftFetcher:
         )
 
     def fetch(self, link: str) -> GiftInfo:
-        """Download the gift page and extract sticker URL, name, and number."""
         response = self.session.get(link, timeout=self.timeout)
         response.raise_for_status()
         html = response.text
@@ -112,106 +111,107 @@ class TelegramGiftFetcher:
 
 
 class GiftAssetConverter:
-    """Downloads .tgs stickers and converts them to Lottie .json."""
+    """Downloads .tgs stickers and converts them directly to Lottie .json."""
 
-    def __init__(self, tgs_dir: str = "tgs", json_dir: str = "GiftsJson", timeout: int = 30):
-        self.tgs_dir = Path(tgs_dir)
+    def __init__(self, json_dir: str = "GiftsJson", timeout: int = 30):
         self.json_dir = Path(json_dir)
         self.timeout = timeout
         self.session = requests.Session()
-
-        self.tgs_dir.mkdir(parents=True, exist_ok=True)
         self.json_dir.mkdir(parents=True, exist_ok=True)
 
-    def download_tgs(self, sticker_url: str, clean_name: str) -> Path:
-        tgs_path = self.tgs_dir / f"{clean_name}.tgs"
+    def process(self, sticker_url: str, clean_name: str) -> Path:
+        """Download .tgs and convert to .json in memory — no tgs file saved."""
+        logger.info("Downloading sticker: %s", sticker_url)
         response = self.session.get(sticker_url, timeout=self.timeout)
         response.raise_for_status()
-        tgs_path.write_bytes(response.content)
-        return tgs_path
 
-    def convert_to_json(self, tgs_path: Path, clean_name: str) -> Path:
+        # .tgs is a gzip-compressed Lottie JSON
+        raw = gzip.decompress(response.content)
+        data = json.loads(raw)
+
         json_path = self.json_dir / f"{clean_name}.json"
-        with gzip.open(tgs_path, "rb") as f:
-            data = json.load(f)
         json_path.write_text(json.dumps(data), encoding="utf-8")
+        logger.info("Saved Lottie JSON: %s", json_path)
         return json_path
 
-    def process(self, sticker_url: str, clean_name: str) -> tuple[Path, Path]:
-        tgs_path = self.download_tgs(sticker_url, clean_name)
-        json_path = self.convert_to_json(tgs_path, clean_name)
-        return tgs_path, json_path
 
+class GiftManifestUpdater:
+    """Adds or updates a gift entry in gifts-manifest.json."""
 
-class GiftHtmlUpdater:
-    """Updates a target HTML file's gift badge link, label, and json path."""
+    def __init__(self, manifest_path: str = "GiftsJson/gifts-manifest.json"):
+        self.manifest_path = Path(manifest_path)
 
-    HREF_PATTERN = re.compile(
-        r'(<a href=")https://t\.me/nft/[^"]+'
-        r'("\s+target="_blank"\s+rel="noopener"\s+class="gift-badge">)'
-    )
-    LABEL_PATTERN = re.compile(r'(<span class="gift-label-text">)[^<]+(</span>)')
-    JSON_PATH_PATTERN = re.compile(r'(path:\s*")[^"]+\.json(")')
-
-    def __init__(self, html_path: str):
-        self.html_path = Path(html_path)
-
-    def update(self, gift: GiftInfo, json_rel_path: str) -> None:
-        if not self.html_path.exists():
-            raise FileNotFoundError(f"HTML file not found: {self.html_path}")
-
-        html = self.html_path.read_text(encoding="utf-8")
-
-        html, href_count = self.HREF_PATTERN.subn(rf"\1{gift.link}\2", html)
-        html, label_count = self.LABEL_PATTERN.subn(rf"\1{gift.label_text}\2", html)
-        html, path_count = self.JSON_PATH_PATTERN.subn(
-            rf'\g<1>{json_rel_path}\g<2>', html
-        )
-
-        if not (href_count and label_count and path_count):
-            logger.warning(
-                "Some placeholders were not found (href=%d, label=%d, path=%d). "
-                "Review the HTML file manually.",
-                href_count,
-                label_count,
-                path_count,
+    def update(self, gift: GiftInfo, json_path: Path) -> None:
+        # Load existing manifest or start fresh
+        if self.manifest_path.exists():
+            gifts: list[dict] = json.loads(
+                self.manifest_path.read_text(encoding="utf-8")
             )
+        else:
+            gifts = []
 
-        self.html_path.write_text(html, encoding="utf-8")
+        json_rel = json_path.as_posix()
+        number_int = int(gift.number) if gift.number else None
+
+        # Build the new entry
+        new_entry = {
+            "id": self._next_id(gifts),
+            "name": re.sub(r"\s*#\d+$", "", gift.label_text).strip(),
+            "number": number_int,
+            "label": gift.label_text,
+            "json": json_rel,
+            "link": gift.link,
+        }
+
+        # If a gift with the same link already exists → update it, don't duplicate
+        existing_index = next(
+            (i for i, g in enumerate(gifts) if g.get("link") == gift.link), None
+        )
+        if existing_index is not None:
+            new_entry["id"] = gifts[existing_index]["id"]
+            gifts[existing_index] = new_entry
+            logger.info("Updated existing gift in manifest: %s", gift.label_text)
+        else:
+            gifts.append(new_entry)
+            logger.info("Added new gift to manifest: %s", gift.label_text)
+
+        self.manifest_path.write_text(
+            json.dumps(gifts, indent=5, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        logger.info("Manifest saved: %s", self.manifest_path)
+
+    def _next_id(self, gifts: list[dict]) -> int:
+        return max((g.get("id", 0) for g in gifts), default=0) + 1
 
 
 class GiftPipeline:
-    """Orchestrates fetching, downloading, converting, and HTML updating."""
+    """Orchestrates fetching, converting, and manifest updating."""
 
-    def __init__(self, html_path: Optional[str] = None):
+    def __init__(self, manifest_path: str = "GiftsJson/gifts-manifest.json"):
         self.fetcher = TelegramGiftFetcher()
         self.converter = GiftAssetConverter()
-        self.html_updater = GiftHtmlUpdater(html_path) if html_path else None
+        self.manifest_updater = GiftManifestUpdater(manifest_path)
 
     def run(self, link: str) -> GiftInfo:
         logger.info("Fetching gift page: %s", link)
         gift = self.fetcher.fetch(link)
 
-        logger.info("Downloading and converting sticker for: %s", gift.clean_name)
-        tgs_path, json_path = self.converter.process(gift.sticker_url, gift.clean_name)
-        json_rel_path = json_path.as_posix()
+        logger.info("Converting sticker for: %s", gift.clean_name)
+        json_path = self.converter.process(gift.sticker_url, gift.clean_name)
 
-        logger.info("Done: %s -> %s, %s", gift.clean_name, tgs_path, json_path)
-
-        if self.html_updater:
-            self.html_updater.update(gift, json_rel_path)
-            logger.info("Updated HTML: %s", self.html_updater.html_path)
-
+        self.manifest_updater.update(gift, json_path)
         return gift
 
 
 def main() -> None:
     link = input("Enter Gift link: ").strip()
-    pipeline = GiftPipeline(html_path="index.html")
+    pipeline = GiftPipeline()
     try:
-        pipeline.run(link)
+        gift = pipeline.run(link)
+        logger.info("Done: %s", gift.label_text)
     except Exception as exc:  # noqa: BLE001
-        logger.error("Failed for %s: %s", link, exc)
+        logger.error("Failed: %s", exc)
         sys.exit(1)
 
 
