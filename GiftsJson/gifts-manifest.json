@@ -33,10 +33,10 @@
      },
      {
           "id": 6,
-          "name": "Resistance Dog",
-          "number": 395,
-          "label": "Resistance Dog #395",
-          "json": "GiftsJson/ResistanceDog.json",
-          "link": "https://t.me/nft/ResistanceDog-395"
+          "name": "Scared Cat",
+          "number": 17302,
+          "label": "Scared Cat #17302",
+          "json": "GiftsJson/ScaredCat.json",
+          "link": "https://t.me/nft/ScaredCat-17302"
      }
 ]
