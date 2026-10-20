@@ -8,14 +8,6 @@
           "link": "https://t.me/nft/SurgeBoard-14057"
      },
      {
-          "id": 2,
-          "name": "Resistance Dog",
-          "number": 1337,
-          "label": "Resistance Dog #1337",
-          "json": "GiftsJson/ResistanceDog.json",
-          "link": "https://t.me/nft/ResistanceDog-1337"
-     },
-     {
           "id": 3,
           "name": "Precious Peach",
           "number": 595,
@@ -38,5 +30,13 @@
           "label": "Heroic Helmet #2847",
           "json": "GiftsJson/HeroicHelmet.json",
           "link": "https://t.me/nft/HeroicHelmet-2847"
+     },
+     {
+          "id": 6,
+          "name": "Resistance Dog",
+          "number": 395,
+          "label": "Resistance Dog #395",
+          "json": "GiftsJson/ResistanceDog.json",
+          "link": "https://t.me/nft/ResistanceDog-395"
      }
 ]
