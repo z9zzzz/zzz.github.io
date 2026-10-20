@@ -8,7 +8,7 @@
           "link": "https://t.me/nft/SurgeBoard-14057"
      },
      {
-          "id": 3,
+          "id": 2,
           "name": "Precious Peach",
           "number": 595,
           "label": "Precious Peach #595",
@@ -16,7 +16,7 @@
           "link": "https://t.me/nft/PreciousPeach-595"
      },
      {
-          "id": 4,
+          "id": 3,
           "name": "Nail Bracelet",
           "number": 2051,
           "label": "Nail Bracelet #2051",
@@ -24,7 +24,7 @@
           "link": "https://t.me/nft/NailBracelet-2051"
      },
      {
-          "id": 5,
+          "id": 4,
           "name": "Heroic Helmet",
           "number": 2847,
           "label": "Heroic Helmet #2847",
@@ -32,11 +32,35 @@
           "link": "https://t.me/nft/HeroicHelmet-2847"
      },
      {
-          "id": 6,
+          "id": 5,
           "name": "Scared Cat",
           "number": 17302,
           "label": "Scared Cat #17302",
           "json": "GiftsJson/ScaredCat.json",
           "link": "https://t.me/nft/ScaredCat-17302"
+     },
+     {
+          "id": 6,
+          "name": "Durov’s Cap",
+          "number": 678,
+          "label": "Durov’s Cap #678",
+          "json": "GiftsJson/DurovsCap.json",
+          "link": "https://t.me/nft/DurovsCap-678"
+     },
+     {
+          "id": 7,
+          "name": "Vintage Cigar",
+          "number": 25557,
+          "label": "Vintage Cigar #25557",
+          "json": "GiftsJson/VintageCigar.json",
+          "link": "https://t.me/nft/VintageCigar-25557"
+     },
+     {
+          "id": 8,
+          "name": "Plush Pepe",
+          "number": 2658,
+          "label": "Plush Pepe #2658",
+          "json": "GiftsJson/PlushPepe.json",
+          "link": "https://t.me/nft/PlushPepe-2658"
      }
 ]
