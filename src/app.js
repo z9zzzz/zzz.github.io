@@ -13,7 +13,12 @@ const profileImages = [
     "profile_12.jpg",
     "profile_13.jpg",
     "profile_14.jpg",
-    "profile_15.jpg"
+    "profile_15.jpg",
+    "profile_16.jpg",
+    "profile_17.jpg",
+    "profile_18.jpg",
+    "profile_19.jpg",
+    "profile_20.jpg",
 ];
 
 
@@ -22,13 +27,41 @@ const cacheBuster = Date.now();
 const randomIndex = Math.floor(Math.random() * profileImages.length);
 const selectedImage = profileImages[randomIndex];
 
+// ── Sleeping tab-title animation ─────────────────────────────────────────────
+const TITLE_ANIMATION_INTERVAL = 500; // ms between frames
+
+const _sleepFrames = ["- Zzz | Y", "- zZz | Y", "- zzZ | Y"];
+let _sleepFrame   = 0;
+let _sleepTimer   = null;
+
+function startSleepAnim() {
+    if (_sleepTimer !== null) return;          // already running — no duplicates
+    _sleepTimer = setInterval(() => {
+        document.title = _sleepFrames[_sleepFrame];
+        _sleepFrame = (_sleepFrame + 1) % _sleepFrames.length;
+    }, TITLE_ANIMATION_INTERVAL);
+}
+
+function stopSleepAnim() {
+    if (_sleepTimer === null) return;
+    clearInterval(_sleepTimer);
+    _sleepTimer  = null;
+    _sleepFrame  = 0;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 window.onblur = () => {
-        document.title = "Why do you Leave?";
+    stopSleepAnim();
+    document.title = "Why do you Leave?";
 }
 
 window.onfocus = () => {
-        document.title = "-Y";
+    stopSleepAnim();
+    document.title = "-Y";
+    startSleepAnim();
 }
+
+startSleepAnim(); // begin on page load
 
 const image = document.querySelector('.image');
 const hover = document.querySelector('.hover');
