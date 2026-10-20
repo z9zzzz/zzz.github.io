@@ -14,6 +14,6 @@ const PLAYLIST = [
     id: 1,
     title: "HAWARY",
     artist: "Wegz",
-    url: "https://z9zzzz.github.io/zzz.github.io/audios/HAWARY.mp3"
+    url: "https://zzz.is-a.dev/audios/HAWARY.mp3"
   }
 ];
