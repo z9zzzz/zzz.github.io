@@ -64,7 +64,7 @@ This is the source code for **AhMed's** personal portfolio — a single dark-the
 
 ---
 
-## 🔨 gift_scraper.py
+## 🔨 giftsmith.py
 
 A Python CLI tool that adds a new gift to the site in one command.
 
