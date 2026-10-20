@@ -28,40 +28,21 @@ const randomIndex = Math.floor(Math.random() * profileImages.length);
 const selectedImage = profileImages[randomIndex];
 
 // ── Sleeping tab-title animation ─────────────────────────────────────────────
-const TITLE_ANIMATION_INTERVAL = 500; // ms between frames
-
+const TITLE_ANIMATION_INTERVAL = 500;
 const _sleepFrames = ["- Zzz | Y", "- zZz | Y", "- zzZ | Y"];
-let _sleepFrame   = 0;
-let _sleepTimer   = null;
 
-function startSleepAnim() {
-    if (_sleepTimer !== null) return;          // already running — no duplicates
-    _sleepTimer = setInterval(() => {
-        document.title = _sleepFrames[_sleepFrame];
-        _sleepFrame = (_sleepFrame + 1) % _sleepFrames.length;
-    }, TITLE_ANIMATION_INTERVAL);
-}
+const _workerBlob = new Blob([`
+    setInterval(() => postMessage(null), ${TITLE_ANIMATION_INTERVAL});
+`], { type: "application/javascript" });
 
-function stopSleepAnim() {
-    if (_sleepTimer === null) return;
-    clearInterval(_sleepTimer);
-    _sleepTimer  = null;
-    _sleepFrame  = 0;
-}
+const _worker = new Worker(URL.createObjectURL(_workerBlob));
+let _sleepFrame = 0;
+
+_worker.onmessage = () => {
+    document.title = _sleepFrames[_sleepFrame];
+    _sleepFrame = (_sleepFrame + 1) % _sleepFrames.length;
+};
 // ─────────────────────────────────────────────────────────────────────────────
-
-window.onblur = () => {
-    stopSleepAnim();
-    document.title = "Why do you Leave?";
-}
-
-window.onfocus = () => {
-    stopSleepAnim();
-    document.title = "-Y";
-    startSleepAnim();
-}
-
-startSleepAnim(); // begin on page load
 
 const image = document.querySelector('.image');
 const hover = document.querySelector('.hover');
