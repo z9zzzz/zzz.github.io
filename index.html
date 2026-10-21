@@ -294,7 +294,12 @@
                          .then(function (res) { return res.json(); })
                          .then(function (gifts) {
                               if (!gifts || !gifts.length) return;
-                              var picked = gifts[Math.floor(Math.random() * gifts.length)];
+
+                              var lastId = parseInt(sessionStorage.getItem("lastGiftId") || "-1");
+                              var pool = gifts.length > 1 ? gifts.filter(function (g) { return g.id !== lastId; }) : gifts;
+                              var picked = pool[Math.floor(Math.random() * pool.length)];
+                              sessionStorage.setItem("lastGiftId", picked.id);
+
                               applyGift(picked);
                               playGift(picked.json);
                          })
