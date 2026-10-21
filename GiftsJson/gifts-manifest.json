@@ -62,5 +62,21 @@
           "label": "Plush Pepe #2658",
           "json": "GiftsJson/PlushPepe.json",
           "link": "https://t.me/nft/PlushPepe-2658"
+     },
+     {
+          "id": 9,
+          "name": "Trapped Heart",
+          "number": 13226,
+          "label": "Trapped Heart #13226",
+          "json": "GiftsJson/TrappedHeart.json",
+          "link": "https://t.me/nft/TrappedHeart-13226"
+     },
+     {
+          "id": 10,
+          "name": "Stellar Rocket",
+          "number": 66061,
+          "label": "Stellar Rocket #66061",
+          "json": "GiftsJson/StellarRocket.json",
+          "link": "https://t.me/nft/StellarRocket-66061"
      }
 ]
