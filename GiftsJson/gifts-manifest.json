@@ -118,5 +118,21 @@
           "label": "Sharp Tongue #5709",
           "json": "GiftsJson/SharpTongue.json",
           "link": "https://t.me/nft/SharpTongue-5709"
+     },
+     {
+          "id": 16,
+          "name": "Electric Skull",
+          "number": 8193,
+          "label": "Electric Skull #8193",
+          "json": "GiftsJson/ElectricSkull.json",
+          "link": "https://t.me/nft/ElectricSkull-8193"
+     },
+     {
+          "id": 17,
+          "name": "Record Player",
+          "number": 10849,
+          "label": "Record Player #10849",
+          "json": "GiftsJson/RecordPlayer.json",
+          "link": "https://t.me/nft/RecordPlayer-10849"
      }
 ]
