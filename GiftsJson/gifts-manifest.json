@@ -78,5 +78,45 @@
           "label": "Stellar Rocket #66061",
           "json": "GiftsJson/StellarRocket.json",
           "link": "https://t.me/nft/StellarRocket-66061"
+     },
+     {
+          "id": 11,
+          "name": "Bonded Ring",
+          "number": 434,
+          "label": "Bonded Ring #434",
+          "json": "GiftsJson/BondedRing.json",
+          "link": "https://t.me/nft/BondedRing-434"
+     },
+     {
+          "id": 12,
+          "name": "Gem Signet",
+          "number": 5232,
+          "label": "Gem Signet #5232",
+          "json": "GiftsJson/GemSignet.json",
+          "link": "https://t.me/nft/GemSignet-5232"
+     },
+     {
+          "id": 13,
+          "name": "Resistance Dog",
+          "number": 3074,
+          "label": "Resistance Dog #3074",
+          "json": "GiftsJson/ResistanceDog.json",
+          "link": "https://t.me/nft/ResistanceDog-3074"
+     },
+     {
+          "id": 14,
+          "name": "Swiss Watch",
+          "number": 1771,
+          "label": "Swiss Watch #1771",
+          "json": "GiftsJson/SwissWatch.json",
+          "link": "https://t.me/nft/SwissWatch-1771"
+     },
+     {
+          "id": 15,
+          "name": "Sharp Tongue",
+          "number": 5709,
+          "label": "Sharp Tongue #5709",
+          "json": "GiftsJson/SharpTongue.json",
+          "link": "https://t.me/nft/SharpTongue-5709"
      }
 ]
