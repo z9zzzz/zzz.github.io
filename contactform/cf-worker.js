@@ -1,87 +1,117 @@
-// Bot API Key
-const BOT_TOKEN = "8669960335:AAFE-pUq9VSj10S9YnbRGTZeAPDYg9Y5Qac";
+// Cloudflare Worker — contact form → Telegram
+// Site: https://zzz.is-a.dev
 
-// Your Telegram USER ID
-const USERID = "1985661120";
+const BOT_TOKEN = "7775338797:AAHrk5r44ZYQ2Js8SiOxDwtM0FollECvFHg";
+const USER_ID = "1985661120";
+const SITE_URL = "https://zzz.is-a.dev";
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Max-Age": "86400",
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      ...CORS,
+    },
+  });
+}
+
+/** Escape text for Telegram HTML parse_mode */
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Clamp + trim user input */
+function clean(v, max = 2000) {
+  if (typeof v !== "string") return "";
+  return v.trim().slice(0, max);
+}
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
 async function handleRequest(request) {
-  if (request.method == "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        "Access-Control-Max-Age": "86400",
-      },
-    });
-  } else if (new URL(request.url).pathname == "/" && !request.body) {
-    return Response.redirect(
-      "https://devz44d.github.io",
-      301
-    );
-  } else {
-    const body = await request.json();
-    const name = body.name;
-    const subject = body.subject;
-    const message = body.message;
+  const url = new URL(request.url);
 
-    if (!name || !subject || !message) {
-      return new Response(
-        JSON.stringify({
-          status: false,
-          msg: "All fields are required",
+  // Preflight
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS });
+  }
+
+  // Root GET → redirect to site
+  if (request.method === "GET" && url.pathname === "/") {
+    return Response.redirect(SITE_URL, 301);
+  }
+
+  // Only POST for the form
+  if (request.method !== "POST") {
+    return json({ status: false, msg: "Method not allowed" }, 405);
+  }
+
+  // Parse body safely
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ status: false, msg: "Invalid JSON body" }, 400);
+  }
+
+  const name = clean(body.name, 100);
+  const subject = clean(body.subject, 200);
+  const message = clean(body.message, 4000);
+
+  if (!name || !subject || !message) {
+    return json({ status: false, msg: "All fields are required" }, 400);
+  }
+
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for") ||
+    "unknown";
+
+  const text =
+    `<b>New Contact Request</b>\n\n` +
+    `<b>IP:</b> <code>${esc(ip)}</code>\n` +
+    `<b>Name:</b> <code>${esc(name)}</code>\n` +
+    `<b>Subject:</b> <code>${esc(subject)}</code>\n` +
+    `<b>Message:</b>\n<code>${esc(message)}</code>`;
+
+  try {
+    const tg = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: USER_ID,
+          text,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
         }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Access-Control-Allow-Origin": "*",
-            "Made-By": "https://github.com/devz44d",
-          },
-        }
-      );
-    } else {
-      const sendmessage = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-        {
-          body: JSON.stringify({
-            chat_id: USERID,
-            text: `<b>New Contact Request Recieved</b>\n\n<b>IP: </b><code>${request.headers.get(
-              "cf-connecting-ip"
-            )}</code>\n<b>Name: </b><code>${name}</code>\n<b>Subject: </b><code>${subject}</code>\n<b>Message: </b><code>${message}</code>`,
-            parse_mode: "HTML",
-          }),
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-        }
-      );
-      const results = await sendmessage.json();
-      if (results.ok == true) {
-        var status = {
-          status: true,
-          msg: "Message sent successfully",
-        };
-      } else {
-        var status = {
-          status: false,
-          msg: "Error while sending the message",
-        };
       }
-      return new Response(JSON.stringify(status), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Access-Control-Allow-Origin": "*",
-          "Made-By": "https://github.com/devz44d",
-        },
-      });
+    );
+
+    const result = await tg.json();
+
+    if (result.ok) {
+      return json({ status: true, msg: "Message sent successfully" });
     }
+
+    console.error("Telegram error:", result);
+    return json({ status: false, msg: "Error while sending the message" }, 502);
+  } catch (err) {
+    console.error("Fetch error:", err);
+    return json({ status: false, msg: "Error while sending the message" }, 502);
   }
 }
