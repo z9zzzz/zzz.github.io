@@ -27,8 +27,8 @@ body {
 
 h1:hover {
     cursor: pointer;
-    background-color: #e8e1ef;
-    color: #100b16;
+    background-color: #ffffff;
+    color: #000000;
     border-radius: .25em;
     padding: 1rem 2rem;
     transition: all 300ms linear;
@@ -55,7 +55,7 @@ h1:hover {
     background-color: #000000;
     width: 100vw;
     height: 100vh;
-    color: #e8e1ef;
+    color: #e5e5e5;
     display: flex;
     opacity: 1;
     justify-content: center;
@@ -546,11 +546,11 @@ h1:hover {
 }
 
 .light .main .image {
-    border: 4px solid #c300ff;
+    border: 4px solid #000000;
 }
 
 .light .image .hover {
-    background: #9c00cc69;
+    background: #00000066;
 }
 
 .light .title {
@@ -570,17 +570,17 @@ h1:hover {
 }
 
 .light .icon:hover {
-    color: #9D4EDD;
+    color: #000000;
 }
 
 .light .follow {
-    background: linear-gradient(to right, #7F00FF, #E100FF);
+    background: linear-gradient(to right, #000000, #333333);
     color: #fff;
 }
 
 .light .share {
-    border: 2px solid #6200ffc0;
-    color: #7F00FF;
+    border: 2px solid #000000;
+    color: #000000;
 }
 
 .light .close:before, .light .close:after {
@@ -588,7 +588,7 @@ h1:hover {
 }
 
 .light .sidebar a {
-   color: #510080;
+   color: #000000;
 }
 
 @media (max-width: 410px) {
@@ -709,9 +709,9 @@ h1:hover {
     left: -5px;
     width: 100%;
     height: 100%;
-    background-color: #e7bdffa1;
+    background-color: #d1d1d1a1;
     border-radius: 40px;
-    border: 5px solid #e0aaff;
+    border: 5px solid #c4c4c4;
     transition: all 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
     backdrop-filter: blur(2.5px);
     transition: .3s;
@@ -722,7 +722,7 @@ h1:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    border: 1px solid #734f96;
+    border: 1px solid #626262;
     border-radius: 40px;
     z-index: 2;
     opacity: 0;
@@ -824,7 +824,7 @@ h1:hover {
 }
 .toggle-input:checked ~ .toggle-bg {
     background-color: #000000a1;
-    border-color: #231830;
+    border-color: #1e1e1e;
 }
 .toggle-input:checked ~ .toggle-switch .toggle-switch-figure {
     margin-left: 40px;
@@ -947,34 +947,58 @@ h1:hover {
     color: #ffffff !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
     font-size: 11px !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     letter-spacing: 0.01em !important;
     line-height: 1 !important;
     padding: 4px 10px !important;
     border-radius: 999px !important;
-    background-color: #1c1c1e !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid transparent !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
+    background-color: #0a0a0a !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     overflow: hidden !important;
     z-index: 2 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85) !important;
 
-    /* الوميض من الشمال لليمين على الشريط */
+    /* high-contrast shine — same on load and hover */
     background-image:
-        linear-gradient(#1c1c1e, #1c1c1e),
+        linear-gradient(#0a0a0a, #0a0a0a),
         linear-gradient(
             90deg,
             transparent 0%,
-            transparent 20%,
-            rgba(255, 255, 255, 0.9) 50%,
-            transparent 80%,
+            transparent 18%,
+            rgba(255, 255, 255, 1) 50%,
+            transparent 82%,
             transparent 100%
         ) !important;
     background-origin: border-box !important;
     background-clip: padding-box, border-box !important;
     background-size: 100% 100%, 200% 100% !important;
     animation: gift-shine-sweep 2.2s linear infinite !important;
+}
+
+/* force same contrast on hover + auto-show (no drop in contrast) */
+.gift-badge:hover .gift-label-text,
+.gift-label.show .gift-label-text {
+    background-color: #0a0a0a !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85) !important;
+    background-image:
+        linear-gradient(#0a0a0a, #0a0a0a),
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 18%,
+            rgba(255, 255, 255, 1) 50%,
+            transparent 82%,
+            transparent 100%
+        ) !important;
 }
 
 /* السهم المتجه للهديه */
@@ -988,8 +1012,8 @@ h1:hover {
     height: 0 !important;
     border-left: 6px solid transparent !important;
     border-right: 6px solid transparent !important;
-    border-top: 6px solid #1c1c1e !important;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) !important;
+    border-top: 6px solid #0a0a0a !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)) !important;
     z-index: 3 !important;
     pointer-events: none !important;
 }
