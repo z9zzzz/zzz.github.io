@@ -21,6 +21,7 @@ import webbrowser
 from pathlib import Path
 
 from flask import Flask, send_from_directory
+import flask
 
 ROOT_DIR = Path(__file__).parent.resolve()
 
