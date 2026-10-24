@@ -1,0 +1,493 @@
+/* ═══════════════════════════════════════════════════════════════
+   Portfolio section
+   - GSAP mode (default): JS animates the 3D spin / slide / reveals
+   - CSS mode (body.css-anim): fallback when GSAP can't load or the
+     visitor prefers reduced motion
+   The particles background (#particles-js) stays fixed behind both.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    --pf-ease: cubic-bezier(.77, 0, .18, 1);
+    --pf-time: .9s;
+}
+
+body.dark {
+    --pf-text: #ffffff;
+    --pf-muted: #a6a6a6;
+    --pf-card: rgba(0, 0, 0, .5);
+    --pf-card-hover: rgba(255, 255, 255, .07);
+    --pf-border: rgba(255, 255, 255, .16);
+    --pf-accent: #ffffff;
+    --pf-accent-soft: rgba(255, 255, 255, .10);
+}
+
+body.light {
+    --pf-text: #000000;
+    --pf-muted: #555555;
+    --pf-card: rgba(255, 255, 255, .72);
+    --pf-card-hover: rgba(0, 0, 0, .04);
+    --pf-border: rgba(0, 0, 0, .18);
+    --pf-accent: #000000;
+    --pf-accent-soft: rgba(0, 0, 0, .07);
+}
+
+/* keep the theme toggle usable on both pages */
+.wrapper { position: fixed !important; z-index: 30; }
+
+/* the background stays put while pages move */
+#particles-js { position: fixed !important; inset: 0; z-index: 0; }
+
+/* ── GSAP mode: JS owns transforms, so CSS must not tween them ─ */
+body.has-gsap .container { transition: none; }
+body.has-gsap .card {
+    transition: background-color .3s, box-shadow .3s, backdrop-filter .3s !important;
+    transform-style: flat;
+}
+
+/* ── the portfolio page ─────────────────────────────────────── */
+#portfolio {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    font-family: 'Poppins', sans-serif;
+    color: var(--pf-text);
+    visibility: hidden;
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--pf-accent) transparent;
+}
+
+body.pf-visible #portfolio { visibility: visible; }
+body.show-portfolio #portfolio { pointer-events: auto; }
+
+#portfolio::-webkit-scrollbar { width: 6px; }
+#portfolio::-webkit-scrollbar-thumb { background: var(--pf-accent); border-radius: 6px; }
+
+.pf-wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 80px 22px 150px;
+}
+
+.pf-section { margin-top: 110px; scroll-margin-top: 40px; }
+.pf-section:first-child { margin-top: 0; }
+
+/* ── CSS fallback mode ──────────────────────────────────────── */
+body.css-anim .container {
+    transition: transform var(--pf-time) var(--pf-ease), opacity .6s ease .15s;
+}
+body.css-anim.show-portfolio .container {
+    transform: translateY(-100vh) scale(.92);
+    opacity: 0;
+    pointer-events: none;
+}
+body.css-anim #portfolio {
+    transform: translateY(100vh);
+    opacity: 0;
+    transition: transform var(--pf-time) var(--pf-ease), opacity .6s ease;
+}
+body.css-anim.show-portfolio #portfolio { transform: none; opacity: 1; }
+body.css-anim .pf-reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition: opacity .7s ease, transform .7s var(--pf-ease);
+}
+body.css-anim.show-portfolio .pf-reveal {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--d, 0) * 90ms + .45s);
+}
+
+/* ── animated scroll hint under the card ────────────────────── */
+.pf-hint {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--pf-muted);
+    opacity: 0;
+    transition: opacity .6s ease, color .3s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body.pf-ready .pf-hint { opacity: 1; }
+body.show-portfolio .pf-hint { opacity: 0 !important; pointer-events: none; }
+.pf-hint:hover { color: var(--pf-accent); }
+
+.pf-hint-text {
+    font-family: 'Space Mono', monospace;
+    font-size: .74rem;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--pf-muted) 0%, var(--pf-text) 45%, var(--pf-accent) 55%, var(--pf-muted) 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: pf-shimmer 2.6s linear infinite;
+}
+
+/* little mouse with a scrolling wheel */
+.pf-mouse {
+    position: relative;
+    width: 22px;
+    height: 34px;
+    border: 2px solid currentColor;
+    border-radius: 13px;
+    animation: pf-float 2.2s ease-in-out infinite;
+}
+
+.pf-mouse::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    width: 3px;
+    height: 7px;
+    margin-left: -1.5px;
+    border-radius: 3px;
+    background: var(--pf-accent);
+    animation: pf-wheel 1.7s cubic-bezier(.6, 0, .3, 1) infinite;
+}
+
+/* cascading chevrons */
+.pf-chevs { width: 20px; height: 26px; overflow: visible; }
+
+.pf-chevs path {
+    fill: none;
+    stroke: var(--pf-accent);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    animation: pf-chev 1.7s ease-in-out infinite;
+}
+
+.pf-chevs path:nth-child(2) { animation-delay: .22s; }
+
+@keyframes pf-shimmer { to { background-position: -220% 0; } }
+@keyframes pf-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes pf-wheel {
+    0%   { transform: translateY(0); opacity: 0; }
+    25%  { opacity: 1; }
+    80%  { transform: translateY(12px); opacity: 0; }
+    100% { transform: translateY(12px); opacity: 0; }
+}
+@keyframes pf-chev {
+    0%   { opacity: 0; transform: translateY(-7px); }
+    45%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(8px); }
+}
+
+/* ── 3D orb (three.js) ──────────────────────────────────────── */
+.pf-orb {
+    position: relative;
+    width: clamp(17rem, 56.5vw, 31rem);   /* disk length = width of the "I'm AhMed" heading */
+    aspect-ratio: 480 / 200;
+    margin: 0 auto -4px;
+}
+
+.pf-orb canvas { position: relative; display: block; width: 100% !important; height: 100% !important; }
+.pf-orb.off { display: none; }
+
+/* ── hero ───────────────────────────────────────────────────── */
+.pf-hero { text-align: center; }
+
+.pf-hero .pf-tag {
+    font-family: 'Space Mono', monospace;
+    color: var(--pf-accent);
+    font-size: .9rem;
+    letter-spacing: .08em;
+}
+
+.pf-hero h1 {
+    font-size: clamp(2.4rem, 8vw, 4.4rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 12px 0 10px;
+    background: linear-gradient(120deg, var(--pf-text), var(--pf-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.pf-hero h1:hover { background: none; padding: 0; color: var(--pf-text); }
+
+.pf-role {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(.95rem, 2.6vw, 1.2rem);
+    color: var(--pf-muted);
+    min-height: 1.6em;
+}
+
+.pf-role::after {
+    /* old Windows cmd cursor: a thick blinking underscore on the baseline */
+    content: '';
+    display: inline-block;
+    width: .62em;
+    height: .14em;
+    margin-left: 4px;
+    background: var(--pf-accent);
+    vertical-align: baseline;
+    animation: pf-blink 1s steps(1) infinite;
+}
+
+@keyframes pf-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+.pf-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 30px; }
+
+.pf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font: 500 .9rem 'Poppins', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--pf-accent);
+    transition: transform .25s, background .25s, color .25s;
+}
+
+.pf-btn.primary { background: var(--pf-accent); color: #0e0f0f; }
+.light .pf-btn.primary { color: #fff; }
+.pf-btn.ghost { background: transparent; color: var(--pf-text); }
+.pf-btn:hover { transform: translateY(-3px); }
+.pf-btn.ghost:hover { background: var(--pf-accent-soft); }
+
+/* stats */
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 50px; }
+
+.pf-stat {
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: 16px;
+    background: var(--pf-card);
+    border: 1px solid var(--pf-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.pf-stat b { display: block; font-size: 1.9rem; font-weight: 600; color: var(--pf-accent); }
+.pf-stat span { font-size: .78rem; color: var(--pf-muted); letter-spacing: .06em; text-transform: uppercase; }
+
+/* ── section headings ───────────────────────────────────────── */
+.pf-head { margin-bottom: 30px; }
+.pf-head small { font-family: 'Space Mono', monospace; color: var(--pf-accent); font-size: .8rem; letter-spacing: .1em; }
+.pf-head h2 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); font-weight: 600; margin-top: 4px; }
+
+/* ── glass cards ────────────────────────────────────────────── */
+.pf-card {
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--pf-card);
+    border: 1px solid var(--pf-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform .3s, background .3s, border-color .3s;
+}
+
+.pf-card:hover { transform: translateY(-5px); background: var(--pf-card-hover); border-color: var(--pf-accent); }
+
+.pf-about p { font-weight: 300; line-height: 1.85; color: var(--pf-muted); }
+.pf-about p + p { margin-top: 12px; }
+.pf-about b { color: var(--pf-text); font-weight: 500; }
+
+/* services */
+.pf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+
+.pf-service i {
+    --c: var(--pf-text);
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    color: var(--c);
+    font-size: 1.25rem;
+    margin-bottom: 14px;
+    transition: transform .3s;
+}
+
+.pf-service:hover i { transform: scale(1.08) rotate(-4deg); }
+
+/* Python keeps its two-tone logo colours */
+.pf-service i.py { --c: #3776ab; }
+.pf-service i.py::before {
+    background: linear-gradient(135deg, #3776ab 48%, #ffd43b 52%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.pf-service h3 { font-size: 1.02rem; font-weight: 500; margin-bottom: 6px; }
+.pf-service p { font-size: .86rem; font-weight: 300; line-height: 1.65; color: var(--pf-muted); }
+
+/* skills — icon tiles */
+.pf-skills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.pf-skills h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: .8rem;
+    font-weight: 400;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--pf-accent);
+    margin-bottom: 16px;
+}
+
+.pf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 10px; }
+
+.pf-tile {
+    --c: var(--pf-accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 14px 6px 11px;
+    border-radius: 14px;
+    border: 1px solid var(--pf-border);
+    background: var(--pf-accent-soft);
+    transition: transform .3s, border-color .3s, box-shadow .3s;
+}
+
+.pf-tile i { font-size: 2rem; line-height: 1; color: var(--c); }
+.pf-tile img { width: 38px; height: 38px; object-fit: contain; display: block; }
+body.dark .pf-tile img.mono { filter: invert(1); }   /* black logos turn white on the dark theme */
+.pf-tile span { font-size: .7rem; font-weight: 400; color: var(--pf-muted); text-align: center; line-height: 1.2; }
+
+.pf-tile:hover {
+    transform: translateY(-5px) scale(1.04);
+    border-color: var(--c);
+    box-shadow: 0 10px 26px -10px var(--c);
+}
+
+.pf-tile:hover span { color: var(--pf-text); }
+
+/* projects */
+.pf-projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+
+.pf-proj { display: flex; flex-direction: column; gap: 10px; color: inherit; text-decoration: none; min-height: 175px; }
+.pf-proj-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pf-proj-top i { color: var(--lc, var(--pf-text)); font-size: 1.3rem; }
+.pf-proj h3 { font-size: 1.02rem; font-weight: 500; word-break: break-word; }
+.pf-proj p { font-size: .84rem; font-weight: 300; line-height: 1.6; color: var(--pf-muted); flex: 1; }
+
+.pf-proj-meta {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: .76rem;
+    color: var(--pf-muted);
+}
+
+.pf-star { color: var(--pf-text); font-weight: 700; }
+.pf-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--pf-accent); margin-right: 6px; }
+.pf-status { text-align: center; color: var(--pf-muted); font-size: .9rem; padding: 30px 0; grid-column: 1 / -1; }
+.pf-more { text-align: center; margin-top: 26px; }
+
+/* contact */
+.pf-contact { text-align: center; }
+.pf-contact p { color: var(--pf-muted); font-weight: 300; max-width: 520px; margin: 0 auto 26px; line-height: 1.8; }
+.pf-socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+
+.pf-socials a {
+    width: 48px; height: 48px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: var(--c, var(--pf-text));
+    text-decoration: none;
+    border: 1px solid var(--pf-border);
+    background: var(--pf-card);
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+
+.pf-socials a:hover { transform: translateY(-4px); border-color: var(--c, var(--pf-accent)); box-shadow: 0 10px 24px -10px var(--c, var(--pf-accent)); }
+.pf-foot { text-align: center; margin-top: 90px; font-family: 'Space Mono', monospace; font-size: .76rem; color: var(--pf-muted); }
+
+/* ── bottom dock navigation ─────────────────────────────────── */
+.pf-dock {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    z-index: 20;
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 999px;
+    background: var(--pf-card);
+    border: 1px solid var(--pf-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform: translate(-50%, 140%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .8s var(--pf-ease) .5s, opacity .5s ease .5s;
+}
+
+body.show-portfolio .pf-dock { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+body:not(.show-portfolio) .pf-dock { transition-delay: 0s; }
+
+.pf-dock button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--pf-muted);
+    font: 500 .78rem 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: background .25s, color .25s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pf-dock button:hover,
+.pf-dock button.active { background: var(--pf-accent-soft); color: var(--pf-text); }
+.pf-dock button.active i { color: var(--pf-accent); }
+.pf-dock .pf-back { border-right: 1px solid var(--pf-border); border-radius: 999px 0 0 999px; }
+
+@media (max-width: 640px) {
+    .pf-dock button span { display: none; }
+    .pf-dock button { padding: 11px 13px; }
+    .pf-wrap { padding-top: 96px; }
+    .pf-stats { gap: 8px; }
+    .pf-stat b { font-size: 1.5rem; }
+    .pf-section { margin-top: 80px; }
+    .pf-skills { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root { --pf-time: .01s; }
+    .pf-hint-text, .pf-mouse, .pf-mouse::after, .pf-chevs path { animation: none; }
+    .pf-chevs path { opacity: .8; }
+}
+
+/* ── smoothness: while the pages are moving, drop the expensive blur and promote layers ── */
+body.pf-animating .pf-card,
+body.pf-animating .pf-stat,
+body.pf-animating .pf-dock,
+body.pf-animating .card {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.pf-animating .container,
+body.pf-animating #portfolio,
+body.pf-animating .card { will-change: transform, opacity; }
