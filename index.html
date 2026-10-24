@@ -11,6 +11,7 @@
      <link rel="canonical" href="https://zzz.is-a.dev/">
      <link rel="stylesheet" href="src/style.css">
      <link rel="stylesheet" href="Music/music-player.css">
+     <link rel="stylesheet" href="portfolio/portfolio.css">
      <link rel='stylesheet'
           href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Poppins:wght@100;200;300;400;500;600;700&display=swap">
      <script src="https://kit.fontawesome.com/49a18d04b2.js"></script>
@@ -217,6 +218,182 @@
           </div>
      </div>
 
+     <!-- ═════════ Portfolio (slides up when you scroll) ═════════ -->
+     <button class="pf-hint" id="pf-hint" aria-label="Open portfolio">
+          <span class="pf-hint-text">Portfolio</span>
+          <span class="pf-mouse" aria-hidden="true"></span>
+          <svg class="pf-chevs" viewBox="0 0 20 26" aria-hidden="true">
+               <path d="M3 3 L10 10 L17 3"></path>
+               <path d="M3 13 L10 20 L17 13"></path>
+          </svg>
+     </button>
+
+     <main id="portfolio" aria-label="Portfolio">
+          <div class="pf-wrap">
+
+               <section class="pf-section pf-hero" id="pf-home">
+                    <div class="pf-orb" id="pf-orb" aria-hidden="true"></div>
+                    <p class="pf-tag pf-reveal" style="--d:0">&gt;_ Hello, world</p>
+                    <h1 class="pf-reveal" style="--d:1">I'm AhMed</h1>
+                    <p class="pf-role pf-reveal" style="--d:2"><span id="pf-role"></span></p>
+                    <div class="pf-cta pf-reveal" style="--d:3">
+                         <a class="pf-btn primary" href="#" onclick="document.getElementById('pf-projects-sec').scrollIntoView({behavior:'smooth'});return false;">
+                              <i class="fas fa-code"></i> View projects
+                         </a>
+                         <a class="pf-btn ghost" href="https://github.com/DevZ44d" target="_blank" rel="noopener">
+                              <i class="fab fa-github"></i> GitHub
+                         </a>
+                    </div>
+                    <div class="pf-stats pf-reveal" style="--d:4">
+                         <div class="pf-stat"><b data-stat="repos">0</b><span>Repositories</span></div>
+                         <div class="pf-stat"><b data-stat="followers">0</b><span>Followers</span></div>
+                         <div class="pf-stat"><b data-stat="stars">0</b><span>Stars</span></div>
+                    </div>
+               </section>
+
+               <section class="pf-section" id="pf-about">
+                    <div class="pf-head pf-reveal" style="--d:0">
+                         <small>&gt;_ 01</small>
+                         <h2>About me</h2>
+                    </div>
+                    <div class="pf-card pf-about pf-reveal" style="--d:1">
+                         <p>Hi, I'm <b>AhMed</b> from Egypt. I build <b>Telegram bots</b>, <b>CLI tools</b> and
+                              <b>Python libraries</b> — mostly in Python, with C++, JavaScript, HTML and CSS on the side.</p>
+                         <p>I love technology, video games and coding with music on. Right now I'm learning
+                              <b>Machine Learning</b> and <b>Artificial Intelligence</b>.</p>
+                         <p>Find my packages on <b>PyPI</b> (AsyncPy), my code on <b>GitHub</b>, and updates on
+                              <b>Telegram</b> (@DevGit and @PyCodz).</p>
+                    </div>
+               </section>
+
+               <section class="pf-section" id="pf-services">
+                    <div class="pf-head pf-reveal" style="--d:0">
+                         <small>&gt;_ 02</small>
+                         <h2>What I do</h2>
+                    </div>
+                    <div class="pf-grid">
+                         <div class="pf-card pf-service pf-reveal" style="--d:1">
+                              <i class="fab fa-telegram" style="--c:#26a5e4"></i>
+                              <h3>Telegram bots</h3>
+                              <p>Async bots, downloaders and AI assistants built on the Telegram Bot API.</p>
+                         </div>
+                         <div class="pf-card pf-service pf-reveal" style="--d:2">
+                              <i class="fab fa-python py"></i>
+                              <h3>Python libraries &amp; CLI tools</h3>
+                              <p>Lightweight, installable tools like ByMail, PyiMAi and PyBrute.</p>
+                         </div>
+                         <div class="pf-card pf-service pf-reveal" style="--d:3">
+                              <i class="fas fa-brain" style="--c:#f472b6"></i>
+                              <h3>AI-powered apps</h3>
+                              <p>Connecting language models to useful tools, from the terminal to chat.</p>
+                         </div>
+                         <div class="pf-card pf-service pf-reveal" style="--d:4">
+                              <i class="fas fa-laptop-code" style="--c:#f97316"></i>
+                              <h3>Websites &amp; serverless</h3>
+                              <p>Animated, responsive static sites plus Cloudflare Workers for the backend bits.</p>
+                         </div>
+                    </div>
+               </section>
+
+               <section class="pf-section" id="pf-skills">
+                    <div class="pf-head pf-reveal" style="--d:0">
+                         <small>&gt;_ 03</small>
+                         <h2>Skills</h2>
+                    </div>
+                    <div class="pf-skills">
+                         <div class="pf-card pf-reveal" style="--d:1">
+                              <h3>Languages</h3>
+                              <div class="pf-tiles">
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/python/python-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Python</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/cplusplus/cplusplus-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>C++</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/javascript/javascript-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>JavaScript</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/html5/html5-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>HTML5</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/css3/css3-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>CSS3</span></div>
+                                   <div class="pf-tile"><img class="mono" src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/bash/bash-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Bash</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/powershell/powershell-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>PowerShell</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/matlab/matlab-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>MATLAB</span></div>
+                              </div>
+                         </div>
+                         <div class="pf-card pf-reveal" style="--d:2">
+                              <h3>Tools &amp; frameworks</h3>
+                              <div class="pf-tiles">
+                                   <div class="pf-tile" style="--c:#26A5E4"><i class="fab fa-telegram"></i><span>Telegram Bots</span></div>
+                                   <div class="pf-tile"><img class="mono" src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/flask/flask-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Flask</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/git/git-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Git</span></div>
+                                   <div class="pf-tile"><img class="mono" src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/github/github-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>GitHub</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/docker/docker-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Docker</span></div>
+                                   <div class="pf-tile" style="--c:#F6821F"><i class="fas fa-cloud"></i><span>CF Workers</span></div>
+                              </div>
+                         </div>
+                         <div class="pf-card pf-reveal" style="--d:3">
+                              <h3>Systems &amp; editors</h3>
+                              <div class="pf-tiles">
+                                   <div class="pf-tile"><img class="mono" src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/linux/linux-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Linux</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/debian/debian-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Debian</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/archlinux/archlinux-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Arch</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/windows8/windows8-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>Windows</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/pycharm/pycharm-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>PyCharm</span></div>
+                                   <div class="pf-tile"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/vscode/vscode-original.svg" alt="" width="38" height="38" loading="lazy" onerror="this.style.visibility='hidden'"><span>VS Code</span></div>
+                              </div>
+                         </div>
+                         <div class="pf-card pf-reveal" style="--d:4">
+                              <h3>Currently learning</h3>
+                              <div class="pf-tiles">
+                                   <div class="pf-tile" style="--c:#10B981"><i class="fas fa-brain"></i><span>Machine Learning</span></div>
+                                   <div class="pf-tile" style="--c:#8B5CF6"><i class="fas fa-robot"></i><span>Artificial Intelligence</span></div>
+                              </div>
+                         </div>
+                    </div>
+               </section>
+
+               <section class="pf-section" id="pf-projects-sec">
+                    <div class="pf-head pf-reveal" style="--d:0">
+                         <small>&gt;_ 04</small>
+                         <h2>Top projects</h2>
+                    </div>
+                    <div class="pf-projects pf-reveal" style="--d:1" id="pf-projects">
+                         <div class="pf-status">Loading repositories…</div>
+                    </div>
+                    <div class="pf-more pf-reveal" style="--d:2">
+                         <a class="pf-btn ghost" href="https://github.com/DevZ44d?tab=repositories" target="_blank" rel="noopener">
+                              <i class="fab fa-github"></i> All repositories
+                         </a>
+                    </div>
+               </section>
+
+               <section class="pf-section pf-contact" id="pf-contact">
+                    <div class="pf-head pf-reveal" style="--d:0">
+                         <small>&gt;_ 05</small>
+                         <h2>Let's talk</h2>
+                    </div>
+                    <div class="pf-card pf-reveal" style="--d:1">
+                         <p>Have an idea, a bot to build or just want to say hi? Send me a message and I'll get back to you.</p>
+                         <button class="pf-btn primary" id="pf-open-contact" type="button">
+                              <i class="far fa-envelope"></i> Send a message
+                         </button>
+                         <div class="pf-socials">
+                              <a href="https://github.com/DevZ44d" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                              <a href="https://t.me/DevGit" target="_blank" rel="noopener" aria-label="Telegram" style="--c:#26a5e4"><i class="fab fa-telegram"></i></a>
+                              <a href="https://www.instagram.com/z6.zzzz/" target="_blank" rel="noopener" aria-label="Instagram" style="--c:#e4405f"><i class="fab fa-instagram"></i></a>
+                              <a href="https://pypi.org/user/AsyncPy/" target="_blank" rel="noopener" aria-label="PyPI" style="--c:#3776ab"><i class="fab fa-python"></i></a>
+                              <a href="mailto:AsyncPy@proton.me" aria-label="Email" style="--c:#ea4335"><i class="far fa-envelope"></i></a>
+                         </div>
+                    </div>
+                    <p class="pf-foot pf-reveal" style="--d:2">&gt;_ Built with ⚡ by AhMed</p>
+               </section>
+
+          </div>
+     </main>
+
+     <nav class="pf-dock" aria-label="Portfolio navigation">
+          <button class="pf-back" id="pf-back" type="button" title="Back"><i class="fas fa-arrow-up"></i><span>Back</span></button>
+          <button type="button" data-go="pf-about"><i class="far fa-user"></i><span>About</span></button>
+          <button type="button" data-go="pf-services"><i class="fas fa-layer-group"></i><span>Services</span></button>
+          <button type="button" data-go="pf-skills"><i class="fas fa-bolt"></i><span>Skills</span></button>
+          <button type="button" data-go="pf-projects-sec"><i class="fas fa-code"></i><span>Projects</span></button>
+          <button type="button" data-go="pf-contact"><i class="far fa-paper-plane"></i><span>Contact</span></button>
+     </nav>
+
      <script>
           document.onkeydown = function (e) {
                if (e.keyCode == 123) {
@@ -268,9 +445,12 @@
      </script>
 
      <script src="src/app.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+     <script src="portfolio/blackhole.js"></script>
+     <script src="portfolio/portfolio.js"></script>
      <script src="Music/Playlist.js"></script>
      <script src="Music/music-player.js"></script>
-     <script form_worker_url="https://linuxguy312.contactform-d0b.workers.dev/" src="/contactform/contact-form.js"
+     <script form_worker_url="https://zzz-contact.ddddi.workers.dev/" src="/contactform/contact-form.js"
           error_text="" success_text="" disable_waittime="true" id="contactform">
           </script>
 
