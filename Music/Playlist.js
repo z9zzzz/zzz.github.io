@@ -12,8 +12,8 @@
 const PLAYLIST = [
   {
     id: 1,
-    title: "HAWARY",
-    artist: "Wegz",
-    url: "https://zzz.is-a.dev/audios/HAWARY.mp3"
+    title: "I'ma Bring (Slowed)",
+    artist: "zardy",
+    url: "https://zzz.is-a.dev/audios/Bring.mp3"
   }
 ];
