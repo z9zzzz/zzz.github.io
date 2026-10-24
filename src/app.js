@@ -153,7 +153,7 @@ toggle.addEventListener('change', function () {
                  }
                },
                interactivity: {
-                 detect_on: "canvas",
+                 detect_on: "window",
                  events: {
                    onhover: { enable: true, mode: "repulse" },
                    onclick: { enable: true, mode: "bubble" },
@@ -198,7 +198,7 @@ toggle.addEventListener('change', function () {
                  }
                },
                interactivity: {
-                 detect_on: "canvas",
+                 detect_on: "window",
                  events: {
                    onhover: { enable: true, mode: "grab" },
                    onclick: { enable: true, mode: "bubble" },
@@ -241,7 +241,7 @@ particlesJS("particles-js", {
        }
      },
      interactivity: {
-       detect_on: "canvas",
+       detect_on: "window",
        events: {
          onhover: { enable: true, mode: "grab" },
          onclick: { enable: true, mode: "bubble" },

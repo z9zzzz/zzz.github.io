@@ -39,14 +39,23 @@ h1:hover {
 }
 
 #particles-js {
-    position: absolute;
+    position: fixed;
+    inset: 0;
     width: 100%;
     height: 100%;
+    z-index: 0;
+    pointer-events: none;
     background-color: #000000;
     background-repeat: no-repeat;
     background-size: 100%;
     background-position: 50% 50%;
-    transition: all .3s;
+    transition: background-color .3s;
+}
+#particles-js canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
 }
 
 .loader {
