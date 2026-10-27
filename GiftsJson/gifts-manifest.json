@@ -134,5 +134,29 @@
           "label": "Record Player #10849",
           "json": "GiftsJson/RecordPlayer.json",
           "link": "https://t.me/nft/RecordPlayer-10849"
+     },
+     {
+          "id": 18,
+          "name": "Astral Shard",
+          "number": 4437,
+          "label": "Astral Shard #4437",
+          "json": "GiftsJson/AstralShard.json",
+          "link": "https://t.me/nft/AstralShard-4437"
+     },
+     {
+          "id": 19,
+          "name": "Westside Sign",
+          "number": 4242,
+          "label": "Westside Sign #4242",
+          "json": "GiftsJson/WestsideSign.json",
+          "link": "https://t.me/nft/WestsideSign-4242"
+     },
+     {
+          "id": 20,
+          "name": "Mighty Arm",
+          "number": 2928,
+          "label": "Mighty Arm #2928",
+          "json": "GiftsJson/MightyArm.json",
+          "link": "https://t.me/nft/MightyArm-2928"
      }
 ]
