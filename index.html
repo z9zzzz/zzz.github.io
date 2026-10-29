@@ -175,7 +175,10 @@
                          <h3 class="name"> </h3>
                          <h3 class="name"> </h3>
                          <div class="name-container">
-                              <h3 class="bold-name">- Да?</h3>
+                              <div class="special-badge" id="special-badge" aria-hidden="true">
+                                   <div id="special-badge-lottie" class="special-badge-lottie"></div>
+                              </div>
+                              <h3 class="bold-name">Да?</h3>
                               <a href="#" target="_blank" rel="noopener"
                                    class="gift-badge" id="gift-badge-link">
                                    <span class="gift-label">
@@ -544,6 +547,40 @@
                     document.addEventListener("DOMContentLoaded", init);
                } else {
                     init();
+               }
+          })();
+     </script>
+
+     <script>
+          /* ===== Special Badge (premium emoji next to name) ===== */
+          (function () {
+               var BADGE_JSON = "assets/tg-emoji/6154391619215826543.json";
+
+               function loadBadge() {
+                    var box = document.getElementById("special-badge-lottie");
+                    if (!box) return;
+                    if (typeof lottie === "undefined") {
+                         setTimeout(loadBadge, 60);
+                         return;
+                    }
+                    box.innerHTML = "";
+                    try {
+                         lottie.loadAnimation({
+                              container: box,
+                              renderer: "svg",
+                              loop: true,
+                              autoplay: true,
+                              path: BADGE_JSON
+                         });
+                    } catch (e) {
+                         console.warn("Special badge lottie failed:", e);
+                    }
+               }
+
+               if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", loadBadge);
+               } else {
+                    loadBadge();
                }
           })();
      </script>

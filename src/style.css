@@ -1069,3 +1069,34 @@ h1:hover {
 .gift-badge:hover {
     transform: scale(1.12) !important;
 }
+/* ===== Special Premium Badge (left of name) ===== */
+.special-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    line-height: 0 !important;
+    position: relative !important;
+    top: 1px !important;
+    pointer-events: none !important;
+    /* hue-rotate + saturate + brightness to hit the #45b8f0 light-blue in the photo */
+    filter: invert(55%) sepia(80%) saturate(400%) hue-rotate(170deg) brightness(1.15) !important;
+}
+
+.special-badge-lottie {
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.special-badge-lottie svg {
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    overflow: visible !important;
+}
