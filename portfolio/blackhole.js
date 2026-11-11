@@ -162,7 +162,7 @@
     canvas.setAttribute("aria-hidden", "true");
     const gl = canvas.getContext("webgl", {
       alpha: true, premultipliedAlpha: true, antialias: false,
-      powerPreference: "high-performance", preserveDrawingBuffer: !!opts.preserve
+      powerPreference: "low-power", preserveDrawingBuffer: !!opts.preserve
     });
     if (!gl) return null;
 
@@ -217,7 +217,8 @@
     if (!initGL()) return null;
     holder.appendChild(canvas);
 
-    const scale = Math.min(window.devicePixelRatio || 1, 1.25);
+    // Keep the hero effect light on high-DPI screens; CSS scales the canvas smoothly.
+    const scale = Math.min(window.devicePixelRatio || 1, 1.0);
 
     function resize() {
       const w = Math.max(64, Math.round((holder.clientWidth || 480) * scale));
@@ -246,17 +247,21 @@
     holder.addEventListener("pointerenter", enter);
     holder.addEventListener("pointerleave", leave);
 
-    let inView = true;
-    const io = new IntersectionObserver((entries) => { inView = entries[0].isIntersecting; });
-    io.observe(holder);
-
     let raf = 0, last = performance.now(), time = 0, dead = false, lost = false;
+    let inView = false;
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) wake();
+      else { cancelAnimationFrame(raf); raf = 0; }
+    });
+    io.observe(holder);
+    const timeDigits = new Float32Array(7);
 
     function draw(timeSeconds) {
       // Convert elapsed time to seven base-256 millisecond digits. The shader reduces
       // each digit modulo 2π, so its float uniforms always remain small and bounded.
       let milliseconds = Math.floor(timeSeconds * 1000);
-      const digits = new Array(7);
+      const digits = timeDigits;
       for (let i = 0; i < digits.length; i++) {
         digits[i] = milliseconds % 256;
         milliseconds = Math.floor(milliseconds / 256);
@@ -272,13 +277,13 @@
     }
 
     function frame(now) {
-      raf = requestAnimationFrame(frame);
-      const raw = now - last;
-      const dt = Math.min(0.033, Math.max(0, raw / 1000));
-      last = now;
-
+      raf = 0;
+      if (dead || lost) return;
       if (canvas.width === 0 || canvas.height === 0) resize();
-      if (dead || lost || document.hidden || !inView || !isActive()) return;
+      if (document.hidden || !inView || !isActive()) { last = now; return; }
+
+      const dt = Math.min(0.033, Math.max(0, (now - last) / 1000));
+      last = now;
 
       const k = 1 - Math.exp(-dt * 4.5);
       cur.x += (target.x - cur.x) * k;
@@ -287,11 +292,28 @@
       time += dt * spin;
 
       draw(time);
+      raf = requestAnimationFrame(frame);
     }
 
+    function wake() {
+      if (raf || dead || lost || document.hidden || !inView || !isActive()) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+
+    const activityObserver = new MutationObserver(wake);
+    activityObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    const onVisibilityChange = () => {
+      if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
+      else wake();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
     const onContextLost = (e) => {
       e.preventDefault();
       lost = true;
+      stop();
       holder.classList.add("off");
     };
     const onContextRestored = () => {
@@ -303,18 +325,21 @@
       resize();
       holder.classList.remove("off");
       draw(time);
+      wake();
     };
     canvas.addEventListener("webglcontextlost", onContextLost, false);
     canvas.addEventListener("webglcontextrestored", onContextRestored, false);
 
-    raf = requestAnimationFrame(frame);
+    wake();
 
     return {
       destroy() {
         dead = true;
-        cancelAnimationFrame(raf);
+        stop();
         ro.disconnect();
         io.disconnect();
+        activityObserver.disconnect();
+        document.removeEventListener("visibilitychange", onVisibilityChange);
         window.removeEventListener("pointermove", onMove);
         holder.removeEventListener("pointerenter", enter);
         holder.removeEventListener("pointerleave", leave);
