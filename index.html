@@ -168,9 +168,12 @@
                          <i class="far fa-envelope"></i>
                     </a>
                     <div class="main">
+                         <div class="profile-avatar-stage" id="profile-avatar-stage">
                          <div class="image">
                               <div class="hover">
                               </div>
+                         </div>
+                         <div class="gift-orbit" id="profile-gift-orbit" role="group" aria-label="Animated profile gifts"></div>
                          </div>
                          <h3 class="name"> </h3>
                          <h3 class="name"> </h3>
@@ -458,6 +461,7 @@
           </script>
 
      <script src="src/lottie.min.js"></script>
+     <script src="src/gift-orbit.js"></script>
      <script>
           (function () {
                var selectedGift = null;
@@ -473,8 +477,9 @@
                }
 
                function loadManifestAndPick() {
-                    fetch("GiftsJson/gifts-manifest.json")
-                         .then(function (res) { return res.json(); })
+                    // gift-orbit.js owns the single network request; reuse its parsed result here.
+                    var manifestPromise = window.__giftsManifestPromise || Promise.reject(new Error("Shared gift manifest is unavailable"));
+                    manifestPromise
                          .then(function (gifts) {
                               if (!gifts || !gifts.length) return;
 
