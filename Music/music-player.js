@@ -441,6 +441,14 @@ const MusicPlayer = (() => {
     if (tip) tip.textContent = on ? "⏸ Click to pause" : "▶ Click the wave bar to play";
   }
 
+  // Read-only bridge for optional visualizers such as the profile gift bubbles.
+  // It reuses this player's existing AudioContext and AnalyserNode.
+  window.GiftsFloatAudio = {
+    getAnalyser: () => analyser,
+    getContext: () => audioCtx,
+    isPlaying: () => playing
+  };
+
   function watchModal() {
     const modal = document.querySelector(".modal");
     if (!modal) return;
