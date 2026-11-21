@@ -1,0 +1,202 @@
+/* ════════════════════════════════════════════════════════════════
+   gifts-float.css — Floating Glass Gifts (Telegram-style)
+   Everything is namespaced with .gf-* / #gf-layer. Nothing else is touched.
+   ════════════════════════════════════════════════════════════════ */
+
+:root { --gf-z: 20; }
+
+/* ── Layer: a 0×0 anchor INSIDE #container, so it travels with the card whenever the
+      page slides or scrolls. Bubbles are positioned relative to it by JS. ── */
+#gf-layer {
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 0;
+  z-index: var(--gf-z);
+  pointer-events: none;
+  overflow: visible;
+  transition: opacity .35s ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#gf-layer.gf-off { opacity: 0; }
+#gf-layer.gf-off .gf-bubble { pointer-events: none !important; }
+
+/* ── Bubble root (design size 150px, scaled by JS) ── */
+.gf-bubble {
+  position: absolute;
+  left: 0; top: 0;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+.gf-bubble.gf-grab { cursor: grabbing; }
+
+/* ── Soft halo (compositor-only: opacity + transform) ── */
+.gf-glow {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(closest-side,
+    rgba(var(--gc), .06) 0%,
+    rgba(var(--gc), .16) 50%,
+    rgba(var(--gc), .26) 60%,
+    rgba(var(--gc), .12) 72%,
+    rgba(var(--gc), 0) 100%);
+}
+
+/* ── Jelly body: frosted, neutral grey glass like the reference ── */
+.gf-jelly {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, .02) 0%, rgba(255, 255, 255, .07) 64%, rgba(255, 255, 255, .17) 100%),
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, .13), rgba(255, 255, 255, 0) 46%),
+    rgba(var(--gc), .035);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, .09),
+    inset 0 -12px 22px -12px rgba(255, 255, 255, .16),
+    inset 10px 12px 22px -14px rgba(255, 255, 255, .26),
+    inset -10px -12px 24px -14px rgba(0, 0, 0, .38);
+}
+/* frosted refraction ONLY on the grabbed bubble (one element → cheap) */
+.gf-grab .gf-jelly {
+  -webkit-backdrop-filter: blur(5px) saturate(1.1);
+  backdrop-filter: blur(5px) saturate(1.1);
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .12) 64%, rgba(255, 255, 255, .22) 100%),
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 46%),
+    rgba(var(--gc), .04);
+}
+/* optional: refraction on every bubble (heavy) */
+#gf-layer.gf-bd .gf-jelly {
+  -webkit-backdrop-filter: blur(1.5px) saturate(1.2);
+  backdrop-filter: blur(1.5px) saturate(1.2);
+}
+
+/* ── Gift (Lottie) ── */
+.gf-gift {
+  position: absolute;
+  left: 26%; top: 26%;
+  width: 48%; height: 48%;
+  pointer-events: none;
+  will-change: transform;
+}
+.gf-gift svg { width: 100% !important; height: 100% !important; display: block; }
+
+/* ── Symbols suspended inside the glass ──
+   resting: tiny specks · grabbed: the layer scales up into big soft motifs */
+.gf-sym-back, .gf-front {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.gf-sym-in {
+  position: absolute;
+  inset: 0;
+  transform: scale(1);
+  transition: transform .55s cubic-bezier(.2, .8, .2, 1);
+}
+.gf-grab .gf-sym-in { transform: scale(2.7); }
+.gf-sym {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* ── Sparkles (only while grabbed) ── */
+.gf-sparks { position: absolute; inset: 0; display: none; }
+.gf-grab .gf-sparks { display: block; }
+.gf-spark {
+  position: absolute;
+  width: var(--s, 6%);
+  aspect-ratio: 1;
+  background: #fff;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  opacity: 0;
+  scale: calc(.8 + var(--hi, 0) * .6);
+  animation: gf-tw var(--dur, 2.4s) ease-in-out var(--dl, 0s) infinite;
+}
+@keyframes gf-tw {
+  0%, 100% { opacity: .1; transform: scale(.45) rotate(0deg); }
+  50%      { opacity: .95; transform: scale(1)   rotate(45deg); }
+}
+
+/* ── Soft light: no hard plastic highlights ── */
+.gf-env {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 34% at 66% 104%, rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 72%);
+}
+.gf-gloss {
+  position: absolute;
+  left: 12%; top: 8%;
+  width: 44%; height: 24%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .02));
+  transform: rotate(-32deg);
+  opacity: .8;
+  transition: opacity .35s ease;
+  will-change: transform;
+}
+.gf-grab .gf-gloss { opacity: 1; }
+.gf-spec {
+  position: absolute;
+  left: 63%; top: 68%;
+  width: 16%; height: 8%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, 0));
+  transform: rotate(-38deg);
+  opacity: calc(.4 + var(--hi, 0) * .4);
+}
+.gf-rim {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 3px;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, .55) 0%,
+    rgba(255, 255, 255, .05) 40%,
+    rgba(255, 255, 255, 0) 62%,
+    rgba(255, 255, 255, .32) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: .75;
+}
+
+/* ── Theme layers (only used when THEMES_ENABLED: true) ── */
+.gf-theme { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.gf-theme-layer { position: absolute; inset: 0; opacity: 0; transition: opacity var(--gf-theme-ms, 1200ms) ease; }
+.gf-theme-layer.gf-in { opacity: 1; }
+.gf-theme-layer .gf-pattern { position: absolute; inset: 0; }
+.gf-theme-layer::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, .10), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, .12) 100%);
+}
+.gf-themed .header { cursor: default; }
+.gf-themed .header .name,
+.gf-themed .header .bold-name { text-shadow: 0 1px 8px rgba(0, 0, 0, .28); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gf-spark { animation: none; }
+  .gf-sym-in { transition: none; }
+}
