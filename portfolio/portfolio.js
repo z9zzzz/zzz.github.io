@@ -128,38 +128,18 @@
     gsap.set(late, { opacity: 0, y: 60, rotationX: -14, transformPerspective: 900, transformOrigin: "50% 100%" });
 
     let revealIO = null;
-    let previousScrollTop = 0;
     startReveals = () => {
       if (revealIO) return;
       revealIO = new IntersectionObserver((entries) => {
-        const currentScrollTop = page.scrollTop;
-        const direction = currentScrollTop >= previousScrollTop ? 1 : -1;
-        previousScrollTop = currentScrollTop;
         entries.forEach((en) => {
+          if (!en.isIntersecting) return;
           const el = en.target;
-          if (en.isIntersecting) {
-            if (el.dataset.pfShown === "true") return;
-            el.dataset.pfShown = "true";
-            gsap.killTweensOf(el);
-            el.style.transition = "none";
-            gsap.fromTo(el,
-              { opacity: 0, y: direction > 0 ? 44 : -44, rotationX: direction > 0 ? -9 : 9 },
-              {
-                opacity: 1, y: 0, rotationX: 0, duration: .78, ease: "power3.out",
-                delay: (parseFloat(el.style.getPropertyValue("--d")) || 0) * .055,
-                onComplete: () => { gsap.set(el, { clearProps: "transform,opacity" }); el.style.transition = ""; }
-              }
-            );
-            return;
-          }
-          if (el.dataset.pfShown !== "true") return;
-          el.dataset.pfShown = "false";
-          gsap.killTweensOf(el);
+          revealIO.unobserve(el);
           el.style.transition = "none";
           gsap.to(el, {
-            opacity: 0, y: direction > 0 ? -28 : 28, rotationX: direction > 0 ? 6 : -6,
-            duration: .42, ease: "power2.in", overwrite: true,
-            onComplete: () => { el.style.transition = ""; }
+            opacity: 1, y: 0, rotationX: 0, duration: .85, ease: "power3.out",
+            delay: (parseFloat(el.style.getPropertyValue("--d")) || 0) * .07,
+            onComplete: () => { gsap.set(el, { clearProps: "transform,opacity" }); el.style.transition = ""; }
           });
         });
       }, { root: page, threshold: .12 });
@@ -202,7 +182,6 @@
     startCounters();
     loadGithub();
     if (playOpen) { startReveals(); playOpen(); }
-    requestAnimationFrame(() => { if (isOpen()) initOrb(); });
   }
 
   function closePortfolio(force) {
@@ -214,11 +193,12 @@
     else setTimeout(() => body.classList.remove("pf-visible"), 950);
   }
 
-  // when the intro loader is gone: show the scroll hint
+  // when the intro loader is gone: show the hint + start the black hole
   const readyTimer = setInterval(() => {
     if (loader && loader.style.opacity === "0") {
       body.classList.add("pf-ready");
       clearInterval(readyTimer);
+      initOrb();
     }
   }, 300);
 
@@ -298,12 +278,9 @@
   })();
 
   /* ───────────── black hole ───────────── */
-  let orbInitialized = false;
   function initOrb() {
-    if (orbInitialized) return;
     const holder = $("#pf-orb");
     if (!holder) return;
-    orbInitialized = true;
     const bh = window.PfBlackHole
       ? window.PfBlackHole.create(holder, { active: () => body.classList.contains("pf-visible") })
       : null;
