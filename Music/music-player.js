@@ -17,6 +17,7 @@ const MusicPlayer = (() => {
 
   let animId   = null;
   let phase    = 0;
+  let lastWaveDraw = 0;
 
   // Beat detection — tracks bass energy to fire edge glow on kick/snare
   let beatEnergy    = 0;   // smoothed bass RMS
@@ -126,6 +127,7 @@ const MusicPlayer = (() => {
     tickLastTime = null;
 
     function step(ts) {
+      if (document.hidden) { tickRaf = null; return; }
       if (tickLastTime === null) tickLastTime = ts;
       const dt = Math.min(ts - tickLastTime, 50);
       tickLastTime = ts;
@@ -232,6 +234,12 @@ const MusicPlayer = (() => {
   function drawWave(now) {
     const canvas = document.getElementById("mp-wave-bar");
     if (!canvas) { animId = requestAnimationFrame(drawWave); return; }
+    // Keep the idle visual alive but render it at a light 15fps cadence.
+    if (!playing && now - lastWaveDraw < 66) {
+      animId = requestAnimationFrame(drawWave);
+      return;
+    }
+    lastWaveDraw = now;
 
     const ctx  = canvas.getContext("2d");
     const W    = canvas.width;
@@ -469,6 +477,12 @@ const MusicPlayer = (() => {
     requestAnimationFrame(drawWave);
     resetTicker(label(current));
     watchModal();
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        if (!animId) animId = requestAnimationFrame(drawWave);
+        startTicker();
+      }
+    });
   }
 
   if (document.readyState === "loading") {

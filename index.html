@@ -477,8 +477,12 @@
                }
 
                function loadManifestAndPick() {
-                    fetch("GiftsJson/gifts-manifest.json")
-                         .then(function (res) { return res.json(); })
+                    var manifestPromise = window.__giftsManifestPromise || (window.__giftsManifestPromise = fetch("GiftsJson/gifts-manifest.json", { cache: "force-cache" })
+                         .then(function (res) {
+                              if (!res.ok) throw new Error("Manifest request failed (" + res.status + ")");
+                              return res.json();
+                         }));
+                    manifestPromise
                          .then(function (gifts) {
                               if (!gifts || !gifts.length) return;
 
@@ -496,10 +500,11 @@
                          });
                }
 
-               function playGift(jsonPath) {
+               function playGift(jsonPath, attempt) {
                     var container = document.getElementById("gift-lottie");
                     if (!container || typeof lottie === "undefined") {
-                         setTimeout(function () { playGift(jsonPath); }, 80);
+                         if ((attempt || 0) >= 80) return;
+                         setTimeout(function () { playGift(jsonPath, (attempt || 0) + 1); }, 100);
                          return;
                     }
                     lottie.loadAnimation({
@@ -560,11 +565,12 @@
           (function () {
                var BADGE_JSON = "assets/tg-emoji/6154391619215826543.json";
 
-               function loadBadge() {
+               function loadBadge(attempt) {
                     var box = document.getElementById("special-badge-lottie");
                     if (!box) return;
                     if (typeof lottie === "undefined") {
-                         setTimeout(loadBadge, 60);
+                         if ((attempt || 0) >= 80) return;
+                         setTimeout(function () { loadBadge((attempt || 0) + 1); }, 100);
                          return;
                     }
                     box.innerHTML = "";
@@ -587,6 +593,14 @@
                     loadBadge();
                }
           })();
+     </script>
+
+     <script>
+          document.addEventListener("visibilitychange", function () {
+               if (typeof lottie === "undefined") return;
+               if (document.hidden) lottie.freeze();
+               else lottie.unfreeze();
+          });
      </script>
 </body>
 

@@ -22,7 +22,7 @@ const profileImages = [
 ];
 
 
-const cacheBuster = Date.now();
+const cacheBuster = '1';
 
 const randomIndex = Math.floor(Math.random() * profileImages.length);
 const selectedImage = profileImages[randomIndex];
@@ -32,16 +32,23 @@ const TITLE_ANIMATION_INTERVAL = 500;
 const _sleepFrames = ["- Zzz | Y", "- zZz | Y", "- zzZ | Y"];
 
 const _workerBlob = new Blob([`
-    setInterval(() => postMessage(null), ${TITLE_ANIMATION_INTERVAL});
+    let timer = null;
+    function start() { if (!timer) timer = setInterval(() => postMessage(null), ${TITLE_ANIMATION_INTERVAL}); }
+    onmessage = (e) => e.data === 'stop' ? (clearInterval(timer), timer = null) : start();
+    start();
 `], { type: "application/javascript" });
-
-const _worker = new Worker(URL.createObjectURL(_workerBlob));
+const _workerUrl = URL.createObjectURL(_workerBlob);
+const _worker = new Worker(_workerUrl);
+URL.revokeObjectURL(_workerUrl);
 let _sleepFrame = 0;
 
 _worker.onmessage = () => {
     document.title = _sleepFrames[_sleepFrame];
     _sleepFrame = (_sleepFrame + 1) % _sleepFrames.length;
 };
+document.addEventListener('visibilitychange', () => {
+    _worker.postMessage(document.hidden ? 'stop' : 'start');
+});
 // ─────────────────────────────────────────────────────────────────────────────
 
 const image = document.querySelector('.image');
@@ -120,8 +127,16 @@ chkbtn.addEventListener('click', toogle);
 const container = document.querySelector('#body');
 const toggle = document.querySelector('.toggle-input');
 const part = document.getElementById('particles-js');
-const initialState = 'false';
+const initialState = false;
 toggle.checked = initialState;
+
+function resetParticles() {
+     if (!Array.isArray(window.pJSDom)) window.pJSDom = [];
+     window.pJSDom.slice().forEach((entry) => {
+          try { entry && entry.pJS && entry.pJS.fn.vendors.destroypJS(); } catch (e) { /* already gone */ }
+     });
+     window.pJSDom = [];
+}
 
 toggle.addEventListener('change', function () {
      if (!toggle.checked) {
@@ -129,6 +144,7 @@ toggle.addEventListener('change', function () {
           part.style.backgroundColor = "#eed1ff";
           card.style.setProperty('--anim', 'cardLightGradient .3s ease-in-out forwards')
           follow.style.animation = 'followLightGradient .3s ease-in-out forwards'
+          resetParticles();
           particlesJS("particles-js", {
                particles: {
                  number: { value: 100, density: { enable: true, value_area: 800 } },
@@ -171,6 +187,7 @@ toggle.addEventListener('change', function () {
           part.style.backgroundColor = "#000000";
           card.style.setProperty('--anim', 'cardDarkGradient .3s ease-in forwards')
           follow.style.animation = 'followDarkGradient .3s ease-in-out forwards'
+          resetParticles();
           particlesJS("particles-js", {
                particles: {
                  number: { value: 100, density: { enable: true, value_area: 800 } },

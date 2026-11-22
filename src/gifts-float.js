@@ -19,7 +19,7 @@
   /* ═══════════════ 1. CONFIG ═══════════════ */
 
   /** How many gift bubbles are visible at once (2, 3, 4, 5, 6, …). */
-  const VISIBLE_GIFTS_COUNT = 6;
+  const VISIBLE_GIFTS_COUNT = 3;
 
   const CONFIG = Object.assign({
     VISIBLE_GIFTS_COUNT: VISIBLE_GIFTS_COUNT,
@@ -39,6 +39,8 @@
     GLASS_BACKDROP: false,    // backdrop-filter refraction: pretty but HEAVY (off by default)
     ORBIT_SPEED: 0.26,        // rad/s – clockwise revolution (~24 s per lap)
     LOTTIE_FPS: 24,           // fps of resting bubbles (grabbed one runs 60). Lower = lighter
+    SYMBOL_COUNT: 9,
+    SPARK_COUNT: 7,
     MUSIC_REACTIVE: true,
     OPEN_LINK_ON_TAP: false,  // tap (no drag) on a bubble opens gift.link
     SYMBOLS: null,            // optional array of image URLs for the inner symbols
@@ -49,6 +51,18 @@
   const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION = REDUCED ? 0.3 : 1;
   const TAU = Math.PI * 2;
+
+  const CONNECTION = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const LOW_POWER = REDUCED ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 2) ||
+    (CONNECTION && (CONNECTION.saveData || /^(slow-2g|2g|3g)$/.test(CONNECTION.effectiveType || ''))) ||
+    innerWidth <= 480;
+  const QUALITY_COUNT = LOW_POWER ? (REDUCED ? 1 : 2) : VISIBLE_GIFTS_COUNT;
+  if (LOW_POWER) {
+    CONFIG.LOTTIE_FPS = REDUCED ? 1 : 18;
+    CONFIG.SYMBOL_COUNT = REDUCED ? 3 : 5;
+    CONFIG.SPARK_COUNT = REDUCED ? 0 : 3;
+  }
 
   const $ = (s, r) => (r || document).querySelector(s);
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -238,11 +252,12 @@
 
   /* ═══════════════ 3. GIFT LOADER ═══════════════ */
 
-  function fetchJSON(url) {
-    return fetch(url, { cache: 'force-cache' }).then((r) => {
-      if (!r.ok) throw new Error(url + ' → HTTP ' + r.status);
-      return r.json();
-    });
+  function fetchJSON(url, options) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), (options && options.timeout) || 8000);
+    return fetch(url, { cache: 'force-cache', signal: controller.signal })
+      .then((r) => { if (!r.ok) throw new Error(url + ' → HTTP ' + r.status); return r.json(); })
+      .finally(() => clearTimeout(timeout));
   }
 
   /** Reads fill / stroke / gradient colours straight from the Lottie JSON. */
@@ -308,7 +323,8 @@
         } catch (e) { console.warn('[gifts] skipped', g.json, e.message || e); }
       }
     }
-    await Promise.all(Array.from({ length: Math.min(count, pool.length) }, worker));
+    // Two concurrent parses are enough to keep the page responsive on mobile.
+    await Promise.all(Array.from({ length: Math.min(2, pool.length) }, worker));
     return out.slice(0, count);
   }
 
@@ -504,7 +520,7 @@
       try { if (CONFIG.SYMBOL_RESOLVER) src = CONFIG.SYMBOL_RESOLVER(this.gift); } catch (e) { /* ignore */ }
       if (!src) src = symbolPool.length ? symbolPool[(Math.random() * symbolPool.length) | 0] : FALLBACK_SYMBOL;
       const baked = silhouette(src);
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < CONFIG.SYMBOL_COUNT; i++) {
         const img = document.createElement('img');
         img.className = 'gf-sym'; img.alt = ''; img.draggable = false; img.decoding = 'async';
         baked.then((u) => { img.src = u; });
@@ -519,7 +535,7 @@
       }
 
       // sparkles (only visible while grabbed)
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < CONFIG.SPARK_COUNT; i++) {
         const sp = document.createElement('i');
         sp.className = 'gf-spark';
         const a = rand(0, TAU), r = rand(10, 40), sz = rand(3.5, 8);
@@ -974,7 +990,8 @@
   let manifestCache = null;
   async function populate(count) {
     if (!manifestCache) {
-      manifestCache = await fetchJSON(CONFIG.MANIFEST_URL);
+      const shared = window.__giftsManifestPromise;
+      manifestCache = await (shared || (window.__giftsManifestPromise = fetchJSON(CONFIG.MANIFEST_URL)));
       if (!Array.isArray(manifestCache)) throw new Error('manifest is not an array');
     }
     const items = await pickGifts(manifestCache, Math.max(0, count | 0));
@@ -1005,9 +1022,11 @@
     let lottie;
     try { lottie = await waitForLottie(10000); } catch (e) { console.warn('[gifts]', e.message); return; }
     Engine.init(avatar, header, preview, lottie);
-    try { await populate(CONFIG.VISIBLE_GIFTS_COUNT); }
-    catch (e) { console.warn('[gifts] manifest failed:', e.message || e); }
+    // Start the lightweight engine immediately; a slow gift request must not
+    // block the rest of the card from becoming interactive.
     Engine.start();
+    try { await populate(QUALITY_COUNT); }
+    catch (e) { console.warn('[gifts] manifest failed:', e.message || e); }
   }
 
   /* public API */
