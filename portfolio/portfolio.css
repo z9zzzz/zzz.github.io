@@ -102,6 +102,16 @@ body.css-anim.show-portfolio .pf-reveal {
     transform: none;
     transition-delay: calc(var(--d, 0) * 90ms + .45s);
 }
+body.css-anim.show-portfolio .pf-reveal.pf-late {
+    opacity: 0;
+    transform: translateY(34px);
+    transition-delay: 0ms;
+}
+body.css-anim.show-portfolio .pf-reveal.pf-late.pf-replay {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--d, 0) * 90ms + .1s);
+}
 
 /* ── animated scroll hint under the card ────────────────────── */
 .pf-hint {

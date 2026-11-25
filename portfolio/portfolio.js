@@ -125,22 +125,29 @@
 
     // the rest of the sections reveal while you scroll
     const late = $$(".pf-reveal").filter((el) => !el.closest("#pf-home"));
-    gsap.set(late, { opacity: 0, y: 60, rotationX: -14, transformPerspective: 900, transformOrigin: "50% 100%" });
+    const REVEAL_FROM = { opacity: 0, y: 60, rotationX: -14, transformPerspective: 900, transformOrigin: "50% 100%" };
+    gsap.set(late, REVEAL_FROM);
 
     let revealIO = null;
+    const resetReveal = (el) => {
+      gsap.killTweensOf(el);
+      el.style.transition = "none";
+      gsap.set(el, REVEAL_FROM);
+    };
+    const animateReveal = (el) => {
+      resetReveal(el);
+      gsap.to(el, {
+        opacity: 1, y: 0, rotationX: 0, duration: .85, ease: "power3.out",
+        delay: (parseFloat(el.style.getPropertyValue("--d")) || 0) * .07,
+        onComplete: () => { gsap.set(el, { clearProps: "transform,opacity" }); el.style.transition = ""; }
+      });
+    };
     startReveals = () => {
       if (revealIO) return;
       revealIO = new IntersectionObserver((entries) => {
         entries.forEach((en) => {
-          if (!en.isIntersecting) return;
-          const el = en.target;
-          revealIO.unobserve(el);
-          el.style.transition = "none";
-          gsap.to(el, {
-            opacity: 1, y: 0, rotationX: 0, duration: .85, ease: "power3.out",
-            delay: (parseFloat(el.style.getPropertyValue("--d")) || 0) * .07,
-            onComplete: () => { gsap.set(el, { clearProps: "transform,opacity" }); el.style.transition = ""; }
-          });
+          if (en.isIntersecting) animateReveal(en.target);
+          else resetReveal(en.target);
         });
       }, { root: page, threshold: .12 });
       late.forEach((el) => revealIO.observe(el));
@@ -163,6 +170,15 @@
         if (tiltOn && !moving) gsap.to(card, { rotationX: 0, rotationY: 0, duration: .8, ease: "power3.out", overwrite: "auto" });
       });
     }
+  } else {
+    // Keep the no-GSAP fallback replayable: leaving resets the state so the
+    // next entry can run the same reveal animation again.
+    const late = $$(".pf-reveal").filter((el) => !el.closest("#pf-home"));
+    late.forEach((el) => el.classList.add("pf-late"));
+    const revealIO = new IntersectionObserver((entries) => {
+      entries.forEach((en) => en.target.classList.toggle("pf-replay", en.isIntersecting));
+    }, { root: page, threshold: .12 });
+    late.forEach((el) => revealIO.observe(el));
   }
 
   /* ───────────── page switching ───────────── */
