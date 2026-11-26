@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="assets/broken.png" type="image/jpg">
+  <meta name="robots" content="noindex">
+  <title>404</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.55);
+      --faint: rgba(255,255,255,.3);
+      --stroke: rgba(255,255,255,.15);
+      --go: 1.35s; /* when the card starts to appear (after the drop hits the water) */
+      --ease: cubic-bezier(.22,1,.36,1);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; background: #000; }
+    body { margin: 0; overflow: hidden; background: #000; color: var(--text); -webkit-font-smoothing: antialiased; }
+    @media (hover: hover) and (pointer: fine) { html, body, a, button { cursor: none; } }
+
+    /* ---------- water background (always black) ---------- */
+    #bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; image-rendering: pixelated; background: #000; }
+    body.nogl #bg { display: none; }
+    .shade { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.78) 100%); }
+
+    /* ---------- intro: a drop falls on still water ---------- */
+    .drop {
+      position: fixed; z-index: 3; left: 50%; top: 50%; width: 13px; height: 13px; pointer-events: none;
+      background: #fff; border-radius: 0 50% 50% 50%;
+      box-shadow: 0 0 22px 4px rgba(255,255,255,.55), 0 -40px 30px -6px rgba(255,255,255,.22);
+      transform: translate(-50%, calc(-50vh - 60px)) rotate(45deg);
+      animation: fall .8s .3s cubic-bezier(.55,0,.95,.55) both;
+    }
+    .drop.gone { opacity: 0; animation: none; transform: translate(-50%, -50%) rotate(45deg) scale(0); transition: opacity .08s, transform .08s; }
+    @keyframes fall {
+      0%   { transform: translate(-50%, calc(-50vh - 60px)) rotate(45deg) scale(.8, 1.5); }
+      100% { transform: translate(-50%, -50%) rotate(45deg) scale(.95, 1.25); }
+    }
+    #splash { position: fixed; z-index: 3; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+    #splash .halo { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,.9); opacity: 0; animation: halo 1s var(--ease) forwards; }
+    #splash .halo.h2 { animation-delay: .12s; border-color: rgba(255,255,255,.5); }
+    @keyframes halo { 0% { transform: scale(.3); opacity: .95; } 100% { transform: scale(20); opacity: 0; } }
+    #splash .d { position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.8); opacity: 0; animation: crown 1s cubic-bezier(.2,.7,.3,1) forwards; }
+    @keyframes crown {
+      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+      45%  { transform: translate(var(--dx), var(--up)); opacity: 1; }
+      100% { transform: translate(calc(var(--dx) * 1.5), var(--down)) scale(.4); opacity: 0; }
+    }
+
+    /* ---------- layout ---------- */
+    .page { position: relative; z-index: 4; display: grid; height: 100svh; place-items: center; padding: 24px; perspective: 1200px; }
+
+    .card {
+      position: relative; width: min(620px, 100%); padding: clamp(30px, 6vw, 56px);
+      text-align: center; overflow: hidden;
+      border: 1px solid var(--stroke); border-radius: 36px;
+      background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.01) 45%), rgba(0,0,0,.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.04), 0 40px 120px rgba(0,0,0,.95), 0 0 90px rgba(255,255,255,.04);
+      -webkit-backdrop-filter: blur(14px) saturate(110%); backdrop-filter: blur(14px) saturate(110%);
+      transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+      transition: transform .25s ease-out;
+      opacity: 0;
+      animation: card-in 1s var(--go) var(--ease) both;
+    }
+    .card::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(280px circle at var(--cx, 50%) var(--cy, 0%), rgba(255,255,255,.11), transparent 70%); }
+    .card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.13), transparent); transform: skewX(-18deg); animation: sweep 1.6s calc(var(--go) + .5s) ease-out forwards; }
+    @keyframes sweep { to { left: 130%; } }
+    @keyframes card-in { from { opacity: 0; transform: translateY(24px) scale(.94) rotateX(8deg); filter: blur(10px); } to { opacity: 1; filter: none; } }
+
+    .status { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 20px; padding: 7px 14px 7px 11px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--muted); font-size: 12px; }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px rgba(255,255,255,.9); animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity: .25; transform: scale(.6); } }
+
+    /* ---------- title: 404 with glitch ---------- */
+    .title-wrap { animation: rise .9s calc(var(--go) + .1s) var(--ease) both; }
+    .glitch {
+      position: relative; display: inline-block; margin: 0; user-select: none;
+      font: 800 clamp(6rem, 25vw, 11.5rem)/.9 ui-rounded, "SF Pro Rounded", -apple-system, "SF Pro Display", sans-serif;
+      letter-spacing: -.06em; color: #fff;
+      background: linear-gradient(180deg, #fff 20%, #7d7d7d 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 30px rgba(255,255,255,.16));
+    }
+    .glitch::before, .glitch::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; -webkit-text-fill-color: currentColor; background: none; opacity: 0; }
+    .glitch::before { color: #fff; }
+    .glitch::after  { color: #8a8a8a; mix-blend-mode: difference; }
+
+    /* ---- 404 glitch: one sequenced pass per second (slices sweep top->bottom / bottom->top + scan line), then rest ---- */
+    .title-wrap { position: relative; display: block; width: fit-content; margin-inline: auto; }
+    .title-wrap::after {
+      content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100%; pointer-events: none; opacity: 0;
+      background: linear-gradient(180deg, transparent 0 47%, rgba(255,255,255,.5) 49.5% 50.5%, transparent 53% 100%);
+      will-change: transform, opacity;
+    }
+    .title-wrap.live::after { animation: g-scan 1s linear infinite; }
+    .glitch { will-change: transform; }
+    .glitch.live { animation: g-main 1s steps(1, end) infinite; }
+    .glitch.live::before { animation: g-top 1s steps(1, end) infinite; }
+    .glitch.live::after  { animation: g-bot 1s steps(1, end) infinite; }
+    @keyframes g-main {
+      0% { transform: none; } 4% { transform: translate(-3px,0) skewX(-6deg); } 10% { transform: translate(4px,0) skewX(4deg); }
+      16% { transform: translate(-2px,1px); } 24% { transform: translate(3px,-1px) skewX(-3deg); } 32% { transform: translate(-4px,0) skewX(5deg); }
+      40% { transform: translate(2px,1px); } 48% { transform: translate(-1px,0) skewX(-2deg); } 56% { transform: translate(1px,0); }
+      62%, 100% { transform: none; }
+    }
+    @keyframes g-top {
+      0% { opacity: 0; }
+      2%  { opacity: .95; clip-path: inset(0% 0 86% 0);  transform: translate(-8px,0); }
+      10% { clip-path: inset(14% 0 68% 0); transform: translate(7px,0); }
+      18% { clip-path: inset(30% 0 52% 0); transform: translate(-10px,1px); }
+      26% { clip-path: inset(46% 0 36% 0); transform: translate(9px,0); }
+      34% { clip-path: inset(60% 0 24% 0); transform: translate(-7px,-1px); }
+      42% { clip-path: inset(74% 0 10% 0); transform: translate(8px,0); }
+      50% { clip-path: inset(86% 0 0% 0);  transform: translate(-5px,0); }
+      58%, 100% { opacity: 0; clip-path: inset(86% 0 0% 0); transform: none; }
+    }
+    @keyframes g-bot {
+      0% { opacity: 0; }
+      4%  { opacity: .9; clip-path: inset(86% 0 0% 0);  transform: translate(9px,0); }
+      12% { clip-path: inset(72% 0 12% 0); transform: translate(-8px,0); }
+      20% { clip-path: inset(56% 0 28% 0); transform: translate(10px,1px); }
+      28% { clip-path: inset(40% 0 44% 0); transform: translate(-9px,0); }
+      36% { clip-path: inset(24% 0 60% 0); transform: translate(6px,-1px); }
+      44% { clip-path: inset(10% 0 74% 0); transform: translate(-8px,0); }
+      52% { clip-path: inset(0% 0 86% 0);  transform: translate(5px,0); }
+      60%, 100% { opacity: 0; clip-path: inset(0% 0 86% 0); transform: none; }
+    }
+    @keyframes g-scan {
+      0%   { opacity: 0; transform: translateY(-50%); }
+      2%   { opacity: .8; }
+      58%  { opacity: .8; transform: translateY(50%); }
+      60%, 100% { opacity: 0; transform: translateY(50%); }
+    }
+    .glitch.burst, .glitch:hover { animation: jitter .5s steps(1) infinite; }
+    .glitch.burst.once { animation-iteration-count: 1; }
+    .glitch.long { animation-duration: .9s; }
+    .glitch.burst::before, .glitch.burst::after, .glitch:hover::before, .glitch:hover::after { opacity: .9; }
+    .glitch.burst::before, .glitch:hover::before { animation: slice-a .5s steps(1) infinite; }
+    .glitch.burst::after,  .glitch:hover::after  { animation: slice-b .5s steps(1) infinite; }
+    .glitch.burst.once::before, .glitch.burst.once::after { animation-iteration-count: 1; }
+    .glitch.long::before, .glitch.long::after { animation-duration: .9s; animation-iteration-count: 2 !important; }
+    @keyframes jitter {
+      0% { transform: translate(0,0); } 12% { transform: translate(-4px,1px) skewX(-7deg); } 24% { transform: translate(5px,-1px) skewX(5deg); }
+      36% { transform: translate(-2px,0); } 48% { transform: translate(3px,2px) skewX(-3deg); } 60% { transform: translate(0,0); }
+      72% { transform: translate(-5px,-1px) skewX(6deg); } 84% { transform: translate(2px,1px); } 100% { transform: none; }
+    }
+    @keyframes slice-a {
+      0% { clip-path: inset(8% 0 72% 0); transform: translate(-9px,0); } 15% { clip-path: inset(44% 0 30% 0); transform: translate(8px,2px); }
+      30% { clip-path: inset(70% 0 6% 0); transform: translate(-11px,-1px); } 45% { clip-path: inset(22% 0 55% 0); transform: translate(10px,0); }
+      60% { clip-path: inset(58% 0 18% 0); transform: translate(-6px,3px); } 80% { clip-path: inset(2% 0 88% 0); transform: translate(12px,0); }
+      100% { clip-path: inset(36% 0 40% 0); transform: none; }
+    }
+    @keyframes slice-b {
+      0% { clip-path: inset(60% 0 14% 0); transform: translate(10px,0); } 20% { clip-path: inset(12% 0 64% 0); transform: translate(-10px,-2px); }
+      40% { clip-path: inset(80% 0 2% 0); transform: translate(6px,1px); } 55% { clip-path: inset(30% 0 46% 0); transform: translate(-12px,0); }
+      75% { clip-path: inset(50% 0 26% 0); transform: translate(9px,2px); } 100% { clip-path: inset(4% 0 80% 0); transform: none; }
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(26px) scale(.9); filter: blur(12px); } to { opacity: 1; transform: none; } }
+
+    .message { max-width: 410px; margin: 22px auto 0; color: var(--muted); font-size: .92rem; line-height: 1.7; }
+
+    .path { display: flex; align-items: center; gap: 9px; width: fit-content; max-width: 100%; margin: 22px auto 0; padding: 9px 14px; color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.11); border-radius: 13px; background: rgba(0,0,0,.6); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .path svg { flex: none; width: 14px; height: 14px; }
+    .path code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: inherit; }
+    .caret { display: inline-block; width: 6px; height: 12px; margin-left: 2px; vertical-align: -2px; background: #fff; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ---------- two premium buttons ---------- */
+    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px; }
+    .btn {
+      --x: 50%; --y: 50%;
+      position: relative; isolation: isolate; overflow: hidden;
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      height: 52px; min-width: 150px; padding: 0 28px 0 22px;
+      color: #fff; font: inherit; font-size: .88rem; font-weight: 600; letter-spacing: .015em; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.24); border-radius: 999px; background: rgba(255,255,255,.03);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 12px 32px rgba(0,0,0,.65);
+      transform: translate(var(--mx, 0px), var(--my, 0px));
+      transition: transform .5s var(--ease), color .45s var(--ease), border-color .45s, box-shadow .45s;
+    }
+    .btn::before { /* fill that grows from where the pointer enters */
+      content: ""; position: absolute; z-index: -1; left: var(--x); top: var(--y); width: 340%; aspect-ratio: 1; border-radius: 50%;
+      background: #fff; transform: translate(-50%, -50%) scale(0); transition: transform .65s var(--ease);
+    }
+    .btn:hover::before, .btn:focus-visible::before { transform: translate(-50%, -50%) scale(1); }
+    .btn:hover, .btn:focus-visible { color: #000; border-color: #fff; outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 16px 44px rgba(0,0,0,.7), 0 0 40px rgba(255,255,255,.18); }
+    .btn:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+    .btn:active { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(.95); }
+
+    .btn.primary { color: #000; background: #fff; border-color: #fff; box-shadow: 0 0 34px rgba(255,255,255,.22), 0 12px 32px rgba(0,0,0,.65); }
+    .btn.primary::before { background: #000; }
+    .btn.primary:hover, .btn.primary:focus-visible { color: #fff; box-shadow: 0 0 0 1px #fff, 0 16px 44px rgba(0,0,0,.7), 0 0 44px rgba(255,255,255,.28); }
+
+    .lbl { position: relative; display: block; height: 1.3em; line-height: 1.3em; overflow: hidden; }
+    .lbl span { display: block; transition: transform .55s var(--ease); }
+    .lbl span + span { position: absolute; left: 0; top: 100%; }
+    .btn:hover .lbl span, .btn:focus-visible .lbl span { transform: translateY(-100%); }
+
+    .ico { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .55s var(--ease); }
+    .btn.home:hover .ico, .btn.home:focus-visible .ico { transform: translateY(-3px) scale(1.12); }
+    .btn.back:hover .ico, .btn.back:focus-visible .ico { transform: translateX(-5px); }
+
+    kbd { padding: 1px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06); color: var(--muted); font: 600 10px ui-monospace, Menlo, monospace; }
+    .hint { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; color: var(--faint); font-size: 11px; }
+    .brand { display: block; margin-top: 14px; color: rgba(255,255,255,.26); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; }
+
+    .card > .status, .card > .message, .card > .path, .card > .actions, .card > .hint, .card > .brand { opacity: 0; animation: up .8s var(--ease) forwards; }
+    .card > .status  { animation-delay: calc(var(--go) + .25s); }
+    .card > .message { animation-delay: calc(var(--go) + .65s); }
+    .card > .path    { animation-delay: calc(var(--go) + .75s); }
+    .card > .actions { animation-delay: calc(var(--go) + .85s); }
+    .card > .hint    { animation-delay: calc(var(--go) + .95s); }
+    .card > .brand   { animation-delay: calc(var(--go) + 1s); }
+    @keyframes up { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+
+    /* ---------- custom cursor (follows the mouse; turns black over white surfaces) ---------- */
+    .cur-dot, .cur-ring { position: fixed; left: 0; top: 0; z-index: 99; pointer-events: none; border-radius: 50%; opacity: 0; transition: opacity .3s; }
+    .cur-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: #fff; mix-blend-mode: difference; }
+    .cur-ring { width: 38px; height: 38px; margin: -19px 0 0 -19px; border: 1px solid rgba(255,255,255,.8); mix-blend-mode: difference; transition: opacity .3s, width .25s, height .25s, margin .25s, background .25s; }
+    .cur-ring.big { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: rgba(255,255,255,.18); }
+    .cur-ring.down { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+    body.has-cursor .cur-dot, body.has-cursor .cur-ring { opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .drop, #splash { display: none; }
+    }
+    @media (max-width: 480px) { .page { padding: 16px; } .card { border-radius: 28px; padding: 30px 20px; } .btn { flex: 1 1 130px; } .hint { display: none; } }
+    @media (hover: none) { .hint, .cur-dot, .cur-ring { display: none; } }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="shade" aria-hidden="true"></div>
+  <div class="drop" id="drop" aria-hidden="true"></div>
+  <div id="splash" aria-hidden="true"></div>
+  <div class="cur-ring" id="ring" aria-hidden="true"></div>
+  <div class="cur-dot" id="dot" aria-hidden="true"></div>
+
+  <main class="page">
+    <section class="card" id="card" aria-labelledby="glitch">
+      <div class="status"><i></i>Signal lost</div>
+      <div class="title-wrap"><h1 class="glitch" id="glitch" data-text="404">404</h1></div>
+      <p class="message">The address is valid, but this destination does not exist on zzz. Head back home and keep exploring.</p>
+
+      <div class="path">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        <code id="requested-path">/</code><span class="caret"></span>
+      </div>
+
+      <nav class="actions" aria-label="Error page actions">
+        <a class="btn primary home" href="/">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10.5 9-7.5 9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+          <span class="lbl"><span>Home</span><span aria-hidden="true">Home</span></span>
+        </a>
+        <button class="btn back" type="button" id="back">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 4 11l5 5"/><path d="M4 11h10a6 6 0 0 1 6 6v1"/></svg>
+          <span class="lbl"><span>Go back</span><span aria-hidden="true">Go back</span></span>
+        </button>
+      </nav>
+
+      <div class="hint"><span><kbd>H</kbd> home</span><span><kbd>B</kbd> back</span><span>move &amp; click on the water</span></div>
+      <small class="brand">zzz.is-a.dev</small>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const card = document.getElementById('card');
+      const glitch = document.getElementById('glitch');
+      const drop = document.getElementById('drop');
+      const now = () => performance.now() / 1000;
+      const t0 = now();
+      const GO = 1.35; // seconds until the card starts to appear
+
+      document.getElementById('requested-path').textContent = location.pathname + location.search;
+
+      /* ---------- nav ---------- */
+      const goBack = () => (history.length > 1 ? history.back() : (location.href = '/'));
+      document.getElementById('back').addEventListener('click', goBack);
+      addEventListener('keydown', e => {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const k = e.key.toLowerCase();
+        if (k === 'h') location.href = '/'; else if (k === 'b') goBack();
+      });
+
+      /* ---------- buttons: fill grows from the pointer + slight magnetic pull ---------- */
+      document.querySelectorAll('.btn').forEach(b => {
+        const setOrigin = e => { const r = b.getBoundingClientRect(); b.style.setProperty('--x', (e.clientX - r.left) + 'px'); b.style.setProperty('--y', (e.clientY - r.top) + 'px'); };
+        b.addEventListener('pointerenter', setOrigin);
+        b.addEventListener('pointerleave', e => { setOrigin(e); b.style.setProperty('--mx', '0px'); b.style.setProperty('--my', '0px'); });
+        b.addEventListener('pointermove', e => {
+          if (reduced || e.pointerType === 'touch') return;
+          const r = b.getBoundingClientRect();
+          b.style.setProperty('--mx', ((e.clientX - r.left - r.width / 2) * .16).toFixed(1) + 'px');
+          b.style.setProperty('--my', ((e.clientY - r.top - r.height / 2) * .24).toFixed(1) + 'px');
+        });
+      });
+
+      /* ---------- 404 title: scramble in, then glitch bursts ---------- */
+      const FINAL = '404', DIGITS = '0123456789#/\\<>';
+      const setTitle = s => { glitch.textContent = s; glitch.dataset.text = s; };
+      const burst = (long) => {
+        glitch.classList.remove('burst', 'once', 'long'); void glitch.offsetWidth;
+        glitch.classList.add('burst', 'once'); if (long) glitch.classList.add('long');
+        setTimeout(() => glitch.classList.remove('burst', 'once', 'long'), long ? 1850 : 540);
+      };
+      const startLoop = () => { glitch.classList.add('live'); glitch.parentElement.classList.add('live'); };
+      if (!reduced) {
+        setTitle('###');
+        setTimeout(() => {
+          let f = 0; const n = 18;
+          (function tick() {
+            let out = '';
+            for (let i = 0; i < FINAL.length; i++) out += i < (f / n) * FINAL.length ? FINAL[i] : DIGITS[Math.random() * DIGITS.length | 0];
+            setTitle(out);
+            if (f++ < n) setTimeout(tick, 38); else { setTitle(FINAL); startLoop(); }
+          })();
+        }, (GO + .15) * 1000);
+      }
+      glitch.addEventListener('click', () => burst(false));
+
+      /* ---------- pointer state ---------- */
+      const MAXR = 24;
+      const ripples = new Float32Array(MAXR * 4); // x, y, startTime, amplitude
+      let ripIdx = 0;
+      let revealT = 1000; // time the drop hits the water; the background is revealed outward from here (1000 = not yet)
+      const dot = document.getElementById('dot'), ring = document.getElementById('ring');
+      let rx = 0, ry = 0, cx = 0, cy = 0;
+      /* old background state: cursor lens, glow trail, click push-ripples */
+      const M = { x: .5, y: .5, sx: .5, sy: .5, speed: 0, has: false };
+      const clickRip = new Float32Array(18);      // 6 x (x, y, startTime)
+      let clickIdx = 0;
+      const trail = new Float32Array(20).fill(-5); // 10 x (x, y)
+
+      function addRippleAt(x, y, amp, start) {
+        const i = ripIdx * 4;
+        ripples[i] = x; ripples[i + 1] = y; ripples[i + 2] = start; ripples[i + 3] = amp;
+        ripIdx = (ripIdx + 1) % MAXR;
+      }
+      const addRipple = (x, y, amp, delay = 0) => addRippleAt(x, y, amp, now() - t0 + delay);
+
+      /* ---------- intro: drop hits the water ---------- */
+      function splash() {
+        const s = document.getElementById('splash'); s.innerHTML = '';
+        ['halo', 'halo h2'].forEach(c => { const h = document.createElement('span'); h.className = c; s.appendChild(h); });
+        for (let i = 0; i < 9; i++) {
+          const a = (i / 8) * Math.PI - Math.PI, d = document.createElement('span'); d.className = 'd';
+          const spread = 30 + Math.random() * 46;
+          d.style.cssText = `--dx:${(Math.cos(a) * spread).toFixed(1)}px;--up:${(-26 - Math.random() * 46).toFixed(1)}px;--down:${(8 + Math.random() * 10).toFixed(1)}px;animation-delay:${(Math.random() * .04).toFixed(3)}s`;
+          s.appendChild(d);
+        }
+        setTimeout(() => (s.innerHTML = ''), 1300);
+      }
+      let introDone = false;
+      function impact() {
+        if (introDone) return; introDone = true;
+        drop.classList.add('gone');
+        revealT = now() - t0;
+        addRipple(.5, .5, 1.7, 0); addRipple(.5, .5, 1.15, .16); addRipple(.5, .5, .8, .34); addRipple(.5, .5, .5, .56);
+        splash();
+        setTimeout(ambient, 2500);
+      }
+      if (reduced) { introDone = true; revealT = -100; addRippleAt(.5, .5, 1.5, 1.6); }
+      else { drop.addEventListener('animationend', impact); setTimeout(impact, 1700); }
+
+      /* gentle random drops so the water is never dead */
+      function ambient() {
+        if (!document.hidden) addRipple(.08 + Math.random() * .84, .12 + Math.random() * .76, .45 + Math.random() * .3);
+        setTimeout(ambient, 3200 + Math.random() * 3800);
+      }
+
+      let lx = 0, ly = 0, acc = 0, lastR = 0;
+      addEventListener('pointermove', e => {
+        cx = e.clientX; cy = e.clientY;
+        M.x = cx / innerWidth; M.y = 1 - cy / innerHeight; M.has = true;
+        if (fine) { document.body.classList.add('has-cursor'); dot.style.transform = `translate(${cx}px,${cy}px)`; }
+        if (reduced) return;
+        acc += Math.hypot(cx - lx, cy - ly); lx = cx; ly = cy;
+        if (introDone && acc > 120 && now() - lastR > .16) { acc = 0; lastR = now(); addRipple(cx / innerWidth, 1 - cy / innerHeight, .3); }
+        const b = card.getBoundingClientRect(), px = (cx - b.left) / b.width, py = (cy - b.top) / b.height;
+        card.style.setProperty('--ry', ((px - .5) * 8).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((.5 - py) * 8).toFixed(2) + 'deg');
+        card.style.setProperty('--cx', (px * 100).toFixed(1) + '%');
+        card.style.setProperty('--cy', (py * 100).toFixed(1) + '%');
+      }, { passive: true });
+      document.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); document.body.classList.remove('has-cursor'); });
+      addEventListener('pointerdown', e => {
+        clickRip[clickIdx * 3] = e.clientX / innerWidth; clickRip[clickIdx * 3 + 1] = 1 - e.clientY / innerHeight; clickRip[clickIdx * 3 + 2] = now() - t0;
+        clickIdx = (clickIdx + 1) % 6;
+        addRipple(e.clientX / innerWidth, 1 - e.clientY / innerHeight, 1); ring.classList.add('down'); });
+      addEventListener('pointerup', () => ring.classList.remove('down'));
+      document.querySelectorAll('a, button, .glitch').forEach(el => {
+        el.addEventListener('pointerenter', () => ring.classList.add('big'));
+        el.addEventListener('pointerleave', () => ring.classList.remove('big'));
+      });
+
+      /* ---------- WebGL: black pond, white ripple crests ---------- */
+      const cv = document.getElementById('bg');
+      const gl = cv.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'high-performance' });
+      if (!gl) { document.body.classList.add('nogl'); }
+      else {
+        const VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+        const FS = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 u_res; uniform float u_time; uniform vec2 u_mouse; uniform float u_speed; uniform float u_cell;
+uniform float u_rev; uniform vec3 u_crip[6]; uniform vec2 u_trail[10];
+uniform vec4 u_rip[${MAXR}];
+
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(hash(i), hash(i + vec2(1.,0.)), f.x), mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), f.x), f.y);
+}
+float fbm(vec2 p){ float v = 0., a = .5; for(int i = 0; i < 4; i++){ v += a * noise(p); p = p * 2.03 + vec2(1.7, 9.2); a *= .5; } return v; }
+float b2(vec2 p){ p = mod(p, 2.); return mod(p.x * 2. + p.y * 3., 4.) / 4.; }
+float bayer4(vec2 p){ return b2(p) + b2(floor(p * .5)) * .25; }
+
+void main(){
+  vec2 cell = floor(gl_FragCoord.xy / u_cell);
+  vec2 uv = (cell + .5) * u_cell / u_res;
+  vec2 asp = vec2(u_res.x / u_res.y, 1.);
+  vec2 p0 = uv * asp;
+  vec2 p = p0;
+  vec2 m = u_mouse * asp;
+  float t = u_time * .11;
+
+  // cursor lens: space bulges around the pointer, harder when moving fast
+  vec2 dm = p - m; float d = length(dm);
+  float infl = exp(-d * d * 8.);
+  p -= dm * infl * (.30 + u_speed * .6);
+
+  // click ripples push the field outward
+  float rg = 0.;
+  for(int i = 0; i < 6; i++){
+    vec3 r = u_crip[i];
+    float age = u_time - r.z;
+    if(r.z > 0. && age > 0. && age < 3.){
+      vec2 rd = p - r.xy * asp; float dist = length(rd);
+      float w = exp(-pow((dist - age * .6) * 13., 2.)); float fade = 1. - age / 3.;
+      p += rd / (dist + .0001) * w * .06 * fade;
+      rg += w * fade;
+    }
+  }
+
+  // domain-warped liquid field -> contour lines (the original background)
+  vec2 q = vec2(fbm(p * 1.4 + vec2(0., t)), fbm(p * 1.4 + vec2(5.2, 1.3) - t));
+  float f = fbm(p * 1.7 + q * 1.7 + t * .6);
+  float ln = 1. - smoothstep(0., .15, abs(fract(f * 11.) - .5) * 2.);
+
+  // glow wake along recent cursor positions
+  float wake = 0.;
+  for(int i = 0; i < 10; i++){
+    float dd = length(p0 - u_trail[i] * asp);
+    wake += exp(-dd * dd * 70.) * (1. - float(i) / 10.);
+  }
+
+  float lum = ln * .22 + f * .05;
+  lum += ln * infl * .85 + infl * .07;
+  lum += ln * clamp(wake, 0., 1.) * .8 + wake * .03;
+  lum += ln * rg * .9 + rg * .08;
+
+  // background appears only where the first wave has already passed (starts when the drop hits)
+  float ageR = u_time - u_rev;
+  float front = max(ageR, 0.) * .42 - .03;
+  float dRev = length(p0 - vec2(.5) * asp) + (noise(p0 * 7.) - .5) * .07;
+  float reveal = (1. - smoothstep(front - .26, front + .02, dRev)) * smoothstep(0., .12, ageR);
+  lum *= reveal;
+
+  // water drop rings on top (intro drop, ambient drops, mouse and click ripples)
+  float h = 0., flash = 0.;
+  for(int i = 0; i < ${MAXR}; i++){
+    vec4 r = u_rip[i];
+    float age = u_time - r.z;
+    if(r.z > 0. && age > 0. && age < 6.){
+      float dr = length(p0 - r.xy * asp);
+      float x = age * .42 - dr;
+      float env = exp(-x * x / (.010 + age * .0045));
+      float fade = exp(-age * .55) / (1. + dr * 4.);
+      h += r.w * sin(x * 64.) * env * fade;
+      flash += r.w * exp(-dr * dr * 3500.) * exp(-age * 9.);
+    }
+  }
+  lum += pow(clamp(h * 1.15, 0., 1.), 1.25) + clamp(flash, 0., 1.);
+
+  lum *= smoothstep(1.35, .15, length(uv - .5) * 1.25);
+
+  // ordered dither -> crisp pixel look, background stays pure black
+  lum = clamp(lum, 0., 1.);
+  float th = bayer4(cell) - .47;
+  float o = floor(lum * 6. + .5 + th) / 6.;
+  gl_FragColor = vec4(vec3(clamp(o, 0., 1.)), 1.);
+}`;
+        const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s)); return s; };
+        const prog = gl.createProgram();
+        gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { document.body.classList.add('nogl'); }
+        else {
+          gl.useProgram(prog);
+          const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+          const loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+          const U = n => gl.getUniformLocation(prog, n);
+          const uRes = U('u_res'), uTime = U('u_time'), uCell = U('u_cell'), uRip = U('u_rip[0]'), uMouse = U('u_mouse'), uSpeed = U('u_speed'), uRev = U('u_rev'), uCrip = U('u_crip[0]'), uTrail = U('u_trail[0]');
+
+          function resize() {
+            const dpr = Math.min(devicePixelRatio || 1, 2);
+            const cellDev = Math.max(2, Math.round(2.2 * dpr));          // one dithered pixel, in device px
+            cv.width = Math.max(1, Math.ceil(innerWidth * dpr / cellDev));   // render at pixel-art resolution
+            cv.height = Math.max(1, Math.ceil(innerHeight * dpr / cellDev)); // (far fewer fragments -> smooth)
+            cv.style.width = (cv.width * cellDev / dpr) + 'px';
+            cv.style.height = (cv.height * cellDev / dpr) + 'px';
+            gl.viewport(0, 0, cv.width, cv.height);
+            gl.uniform1f(uCell, 1);
+            gl.uniform2f(uRes, cv.width, cv.height);
+            if (reduced) frame(true);
+          }
+
+          let frames = 0;
+          function frame(still) {
+            const t = still ? 3 : now() - t0;
+            if (!M.has && !still) { // idle: the lens drifts on its own so the page is never static
+              M.x = .5 + Math.cos(t * .35) * .26; M.y = .5 + Math.sin(t * .5) * .22;
+            }
+            const px = M.sx, py = M.sy;
+            M.sx += (M.x - M.sx) * .14; M.sy += (M.y - M.sy) * .14;
+            const v = Math.hypot(M.sx - px, M.sy - py) * 30;
+            M.speed += (Math.min(v, 1) - M.speed) * .1;
+            if (frames++ % 2 === 0) { trail.copyWithin(2, 0, 18); trail[0] = M.sx; trail[1] = M.sy; }
+            // custom cursor ring follows with a lag
+            if (fine) { rx += (cx - rx) * .18; ry += (cy - ry) * .18; ring.style.transform = `translate(${rx}px,${ry}px)`; }
+            gl.uniform1f(uTime, t);
+            gl.uniform1f(uRev, revealT);
+            gl.uniform4fv(uRip, ripples);
+            gl.uniform2f(uMouse, M.sx, M.sy);
+            gl.uniform1f(uSpeed, M.speed);
+            gl.uniform3fv(uCrip, clickRip);
+            gl.uniform2fv(uTrail, trail);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+          }
+          function loop() { frame(false); requestAnimationFrame(loop); }
+
+          addEventListener('resize', resize, { passive: true });
+          cv.addEventListener('webglcontextlost', e => { e.preventDefault(); document.body.classList.add('nogl'); });
+          resize();
+          if (reduced) frame(true); else loop();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
